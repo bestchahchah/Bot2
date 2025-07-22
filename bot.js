@@ -212,12 +212,12 @@ client.on('messageCreate', async (message) => {
 
   if (command === 'balance') {
     const bal = balances[userId].money;
-    message.reply(`Your balance is $${bal}.`);
+    message.reply(`Your gummies balance is ${bal}.`);
   }
 
   if (command === 'applyjob') {
     if (args.length === 0) {
-      let jobList = JOBS.map(j => `- ${j.name} ($${j.salary}/work)`).join('\n');
+      let jobList = JOBS.map(j => `- ${j.name} (${j.salary}/work)`).join('\n');
       message.reply(`Available jobs:\n${jobList}\nUse !applyjob <jobname> to apply.`);
       return;
     }
@@ -269,7 +269,7 @@ client.on('messageCreate', async (message) => {
     balances[userId].lastWork = now;
     balances[userId].money += job.salary;
     saveBalances(balances);
-    message.reply(`You worked as a ${job.name} and earned $${job.salary}! Your new balance is $${balances[userId].money}. Energy left: ${balances[userId].energy}/${MAX_ENERGY}`);
+    message.reply(`You worked as a ${job.name} and earned ${job.salary} gummies! Your new gummies balance is ${balances[userId].money}. Energy left: ${balances[userId].energy}/${MAX_ENERGY}`);
   }
 
   if (command === 'makecompany') {
@@ -284,7 +284,7 @@ client.on('messageCreate', async (message) => {
       return;
     }
     if (balances[userId].money < COMPANY_COST) {
-      message.reply(`You need at least $${COMPANY_COST.toLocaleString()} to create a company.`);
+      message.reply(`You need at least ${COMPANY_COST.toLocaleString()} gummies to create a company.`);
       return;
     }
     const companyName = args.join(' ');
@@ -309,7 +309,7 @@ client.on('messageCreate', async (message) => {
     balances[userId].money -= COMPANY_COST;
     saveBalances(balances);
     saveCompanies(companies);
-    message.reply(`🎉 Company created! You are now the owner of "${companyName}". ($${COMPANY_COST.toLocaleString()} deducted)`);
+    message.reply(`🎉 Company created! You are now the owner of "${companyName}". (${COMPANY_COST.toLocaleString()} gummies deducted)`);
   }
 
   if (command === 'leaderboard') {
@@ -327,7 +327,7 @@ client.on('messageCreate', async (message) => {
       } catch {
         user = { username: 'Unknown' };
       }
-      msg += `${i + 1}. ${user.username}: $${data.money}\n`;
+      msg += `${i + 1}. ${user.username}: ${data.money}\n`;
     }
     message.reply(msg);
   }
@@ -371,7 +371,7 @@ client.on('messageCreate', async (message) => {
       const companies = loadCompanies();
       if (companies[userData.companyId]) companyName = companies[userData.companyId].name;
     }
-    let profileMsg = `__**👤 Profile for ${target.username}**__\n\n💰 **Balance:** $${userData.money}\n💼 **Job:** ${job}\n🏢 **Company:** ${companyName}\n🎒 **Inventory:** ${inv}\n⚡ **Energy:** ${userData.energy}/${MAX_ENERGY}`;
+    let profileMsg = `__**👤 Profile for ${target.username}**__\n\n🍬 **Gummies:** ${userData.money}\n💼 **Job:** ${job}\n🏢 **Company:** ${companyName}\n🎒 **Inventory:** ${inv}\n⚡ **Energy:** ${userData.energy}/${MAX_ENERGY}`;
     message.reply(profileMsg);
   }
 
@@ -481,7 +481,7 @@ client.on('messageCreate', async (message) => {
     }
     let funds = targetCompany.funds || 0;
     let upgrades = targetCompany.upgrades && targetCompany.upgrades.length > 0 ? targetCompany.upgrades.join(', ') : 'None';
-    let msg = `__**🏢 Company: ${targetCompany.name}**__\n\n👑 Owner: ${ownerName}\n👥 Members (${memberNames.length}): ${memberNames.join(', ')}\n💰 Funds: $${funds}\n🔧 Upgrades: ${upgrades}`;
+    let msg = `__**🏢 Company: ${targetCompany.name}**__\n\n👑 Owner: ${ownerName}\n👥 Members (${memberNames.length}): ${memberNames.join(', ')}\n🍬 Gummies: ${funds}\n🔧 Upgrades: ${upgrades}`;
     message.reply(msg);
   }
 
@@ -501,7 +501,7 @@ client.on('messageCreate', async (message) => {
     }
     let msg = '**🏢 Company Leaderboard:**\n';
     leaderboard.forEach((c, i) => {
-      msg += `${i+1}. ${c.name} — $${c.total} (${c.members} members)\n`;
+      msg += `${i+1}. ${c.name} — ${c.total} gummies (${c.members} members)\n`;
     });
     message.reply(msg);
   }
@@ -526,7 +526,7 @@ client.on('messageCreate', async (message) => {
     companies[cid].funds += amount;
     saveBalances(balances);
     saveCompanies(companies);
-    message.reply(`Deposited $${amount} to your company funds.`);
+    message.reply(`Deposited ${amount} gummies to your company funds.`);
   }
 
   if (command === 'companywithdraw') {
@@ -553,7 +553,7 @@ client.on('messageCreate', async (message) => {
     balances[userId].money += amount;
     saveBalances(balances);
     saveCompanies(companies);
-    message.reply(`Withdrew $${amount} from your company funds.`);
+    message.reply(`Withdrew ${amount} gummies from your company funds.`);
   }
 
   if (command === 'companyupgrades') {
