@@ -5,7 +5,7 @@ const path = require('path');
 const TOKEN = "ODMxMzI2MTQwODAyMjY5MjA0.Gt6hmz.L4I-UtsC5FHbHUgpunRUR14S_zLLaXdQsJOalA";
 const BALANCES_FILE = 'balances.json';
 const BACKUP_FILE = 'balances_backup.json';
-const PREFIX = '!';
+const PREFIX = '-';
 const MERCHANT_NAME = 'Tucker';
 
 const CHANGELOG = [
@@ -21,35 +21,35 @@ const COMMAND_SECTIONS = [
   {
     title: '💰 Economy',
     cmds: [
-      { cmd: '!balance', desc: 'Check your current balance.' },
-      { cmd: '!leaderboard', desc: 'Show the top 10 richest users.' }
+      { cmd: '-balance', desc: 'Check your current balance.' },
+      { cmd: '-leaderboard', desc: 'Show the top 10 richest users.' }
     ]
   },
   {
     title: '💼 Jobs',
     cmds: [
-      { cmd: '!applyjob', desc: 'See available jobs or apply for one.' },
-      { cmd: '!work', desc: 'Work your job to earn your salary.' },
+      { cmd: '-applyjob', desc: 'See available jobs or apply for one.' },
+      { cmd: '-work', desc: 'Work your job to earn your salary.' },
       { cmd: 'Energy', desc: 'Work uses energy. You recover 1 energy every 30 minutes. Max 100 energy. Each work costs 10 energy.' }
     ]
   },
   {
     title: '🛒 Merchant',
     cmds: [
-      { cmd: '!merchant', desc: 'Talk to Tucker the merchant.' }
+      { cmd: '-merchant', desc: 'Talk to Tucker the merchant.' }
     ]
   },
   {
     title: '👤 Profile',
     cmds: [
-      { cmd: '!profile [@user]', desc: 'Show your or another user\'s profile.' }
+      { cmd: '-profile [@user]', desc: 'Show your or another user\'s profile.' }
     ]
   },
   {
     title: 'ℹ️ Info',
     cmds: [
-      { cmd: '!changelog', desc: 'Show the latest bot changes.' },
-      { cmd: '!cmds or !commands', desc: 'Show this command list.' }
+      { cmd: '-changelog', desc: 'Show the latest bot changes.' },
+      { cmd: '-cmds or -commands', desc: 'Show this command list.' }
     ]
   }
 ];
