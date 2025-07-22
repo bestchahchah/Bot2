@@ -22,7 +22,6 @@ const CHANGELOG = [
   'Added -help as alias for -cmds and -commands',
   'Bot status now shows -help',
   'Updated -work prompt to reference -applyjob',
-  'Gave users 1172954028569796639 and 1338750779531722762 $500,000',
 ];
 
 const COMMAND_SECTIONS = [
