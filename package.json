@@ -1,0 +1,12 @@
+{
+  "name": "economy-discord-bot",
+  "version": "1.0.0",
+  "description": "A simple economy Discord bot.",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.13.0"
+  }
+}
