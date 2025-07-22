@@ -88,6 +88,12 @@ const COMMAND_SECTIONS = [
     ]
   },
   {
+    title: '🏢 Companies',
+    cmds: [
+      { cmd: '-makecompany <name>', desc: 'Create your own company.' }
+    ]
+  },
+  {
     title: '👤 Profile',
     cmds: [
       { cmd: '-profile [@user]', desc: 'Show your or another user\'s profile.' }
@@ -165,18 +171,19 @@ client.on('messageCreate', async (message) => {
   const userId = message.author.id;
   let balances = loadBalances();
 
-  // Ensure user data structure supports future inventory, job, energy, and lastWork
+  // Ensure user data structure supports future inventory, job, energy, lastWork, lastEnergy, and company
   if (!balances[userId]) {
-    balances[userId] = { money: 0, inventory: [], job: null, energy: MAX_ENERGY, lastWork: 0, lastEnergy: Date.now() };
+    balances[userId] = { money: 0, inventory: [], job: null, energy: MAX_ENERGY, lastWork: 0, lastEnergy: Date.now(), company: null };
   } else {
     if (typeof balances[userId] === 'number') {
-      balances[userId] = { money: balances[userId], inventory: [], job: null, energy: MAX_ENERGY, lastWork: 0, lastEnergy: Date.now() };
+      balances[userId] = { money: balances[userId], inventory: [], job: null, energy: MAX_ENERGY, lastWork: 0, lastEnergy: Date.now(), company: null };
     }
     if (!('inventory' in balances[userId])) balances[userId].inventory = [];
     if (!('job' in balances[userId])) balances[userId].job = null;
     if (!('energy' in balances[userId])) balances[userId].energy = MAX_ENERGY;
     if (!('lastWork' in balances[userId])) balances[userId].lastWork = 0;
     if (!('lastEnergy' in balances[userId])) balances[userId].lastEnergy = Date.now();
+    if (!('company' in balances[userId])) balances[userId].company = null;
   }
 
   // Energy recovery logic
@@ -251,6 +258,27 @@ client.on('messageCreate', async (message) => {
     message.reply(`You worked as a ${job.name} and earned $${job.salary}! Your new balance is $${balances[userId].money}. Energy left: ${balances[userId].energy}/${MAX_ENERGY}`);
   }
 
+  if (command === 'makecompany') {
+    if (balances[userId].company) {
+      message.reply('You already own a company: ' + balances[userId].company);
+      return;
+    }
+    if (args.length === 0) {
+      message.reply('Please provide a name for your company. Usage: -makecompany <company name>');
+      return;
+    }
+    const companyName = args.join(' ');
+    // Prevent duplicate company names
+    const allCompanies = Object.values(balances).map(u => u.company && u.company.toLowerCase()).filter(Boolean);
+    if (allCompanies.includes(companyName.toLowerCase())) {
+      message.reply('A company with that name already exists. Please choose another name.');
+      return;
+    }
+    balances[userId].company = companyName;
+    saveBalances(balances);
+    message.reply(`🎉 Company created! You are now the owner of "${companyName}".`);
+  }
+
   if (command === 'leaderboard') {
     const sorted = Object.entries(balances).sort((a, b) => b[1].money - a[1].money);
     if (sorted.length === 0) {
@@ -305,7 +333,8 @@ client.on('messageCreate', async (message) => {
     }
     let job = userData.job ? userData.job : 'None';
     let inv = userData.inventory && userData.inventory.length > 0 ? userData.inventory.join(', ') : 'Empty';
-    let profileMsg = `__**👤 Profile for ${target.username}**__\n\n💰 **Balance:** $${userData.money}\n💼 **Job:** ${job}\n🎒 **Inventory:** ${inv}\n⚡ **Energy:** ${userData.energy}/${MAX_ENERGY}`;
+    let company = userData.company ? userData.company : 'None';
+    let profileMsg = `__**👤 Profile for ${target.username}**__\n\n💰 **Balance:** $${userData.money}\n💼 **Job:** ${job}\n🏢 **Company:** ${company}\n🎒 **Inventory:** ${inv}\n⚡ **Energy:** ${userData.energy}/${MAX_ENERGY}`;
     message.reply(profileMsg);
   }
 });
