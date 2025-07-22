@@ -238,13 +238,19 @@ client.on('messageCreate', async (message) => {
       message.reply('You do not have a job. Use -applyjob to see available jobs.');
       return;
     }
-    const job = JOBS.find(j => j.name === jobName);
-    if (!job) {
-      message.reply('Your job is no longer available. Please apply for a new job.');
-      balances[userId].job = null;
-      saveBalances(balances);
-      return;
+    // Company job logic
+    let companyJob = false;
+    let companySalary = 500;
+    let companies = loadCompanies();
+    let userCompany = null;
+    if (balances[userId].companyId && companies[balances[userId].companyId]) {
+      userCompany = companies[balances[userId].companyId];
+      if (userCompany.name.toLowerCase() === jobName.toLowerCase()) {
+        companyJob = true;
+        companySalary = userCompany.salary || 500;
+      }
     }
+    let job = JOBS.find(j => j.name === jobName);
     // Cooldown check
     const lastWork = balances[userId].lastWork || 0;
     const now = Date.now();
@@ -267,6 +273,25 @@ client.on('messageCreate', async (message) => {
     }
     balances[userId].energy -= ENERGY_COST_PER_WORK;
     balances[userId].lastWork = now;
+    if (companyJob) {
+      // Company pays salary if it has enough funds
+      if (userCompany.funds < companySalary) {
+        message.reply(`Your company does not have enough gummies to pay your salary (${companySalary} gummies).`);
+        return;
+      }
+      userCompany.funds -= companySalary;
+      balances[userId].money += companySalary;
+      companies[balances[userId].companyId] = userCompany;
+      saveCompanies(companies);
+      saveBalances(balances);
+      message.reply(`You worked for your company (${userCompany.name}) and earned ${companySalary} gummies! Your new gummies balance is ${balances[userId].money}. Energy left: ${balances[userId].energy}/${MAX_ENERGY}`);
+      return;
+    }
+    // Default job logic
+    if (!job) {
+      message.reply('Your job is not recognized.');
+      return;
+    }
     balances[userId].money += job.salary;
     // Company profit sharing
     if (balances[userId].companyId) {
