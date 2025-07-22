@@ -24,6 +24,47 @@ const CHANGELOG = [
   'Updated -work prompt to reference -applyjob',
 ];
 
+const CHANGELOG_SECTIONS = [
+  {
+    title: '💰 Economy',
+    entries: [
+      'Added -balance, -leaderboard commands',
+      'Advanced data saver for balances and inventory'
+    ]
+  },
+  {
+    title: '💼 Jobs',
+    entries: [
+      'Added jobs system (-applyjob, -work)',
+      'Added energy system and cooldown to -work'
+    ]
+  },
+  {
+    title: '🛒 Merchant',
+    entries: [
+      'Added merchant Tucker (-merchant)'
+    ]
+  },
+  {
+    title: '👤 Profile',
+    entries: [
+      'Added -profile command with improved formatting and emojis'
+    ]
+  },
+  {
+    title: 'ℹ️ Info/General',
+    entries: [
+      'Switched to JavaScript version',
+      'Added -changelog command',
+      'Changed command prefix to -',
+      'Sectioned command list in -help',
+      'Added -help as alias for -cmds and -commands',
+      'Bot status now shows -help',
+      'Updated -work prompt to reference -applyjob'
+    ]
+  }
+];
+
 const COMMAND_SECTIONS = [
   {
     title: '💰 Economy',
@@ -235,8 +276,12 @@ client.on('messageCreate', async (message) => {
   }
 
   if (command === 'changelog') {
-    const changelog = `__**📜 Bot Changelog**__\n\n${CHANGELOG.map(e => `• ${e}`).join('\n\n')}`;
-    message.reply(changelog);
+    let changelog = `__**📜 Bot Changelog**__\n\n`;
+    for (const section of CHANGELOG_SECTIONS) {
+      changelog += `__${section.title}__\n`;
+      changelog += section.entries.map(e => `• ${e}`).join('\n\n') + '\n\n';
+    }
+    message.reply(changelog.trim());
   }
 
   if (command === 'cmds' || command === 'commands' || command === 'help') {
