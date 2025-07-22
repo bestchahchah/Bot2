@@ -60,6 +60,11 @@ client.on('messageCreate', async (message) => {
     }
     message.reply(msg);
   }
+
+  if (command === 'changelog') {
+    const changelog = `**Changelog:**\n- Added !balance, !earn, !leaderboard commands\n- Switched to JavaScript version\n- Added !changelog command`;
+    message.reply(changelog);
+  }
 });
 
 client.login(TOKEN);
