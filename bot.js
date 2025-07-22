@@ -46,6 +46,13 @@ function saveBalances(balances) {
   atomicWrite(BALANCES_FILE, data);
 }
 
+const JOBS = [
+  { name: 'Cashier', salary: 150 },
+  { name: 'Programmer', salary: 300 },
+  { name: 'Artist', salary: 200 },
+  { name: 'Chef', salary: 180 }
+];
+
 client.once('ready', () => {
   console.log(`Logged in as ${client.user.tag}`);
 });
@@ -57,12 +64,16 @@ client.on('messageCreate', async (message) => {
   const userId = message.author.id;
   let balances = loadBalances();
 
-  // Ensure user data structure supports future inventory
+  // Ensure user data structure supports future inventory and job
   if (!balances[userId]) {
-    balances[userId] = { money: 0, inventory: [] };
-  } else if (typeof balances[userId] === 'number') {
-    // Migrate old format
-    balances[userId] = { money: balances[userId], inventory: [] };
+    balances[userId] = { money: 0, inventory: [], job: null };
+  } else {
+    if (typeof balances[userId] === 'number') {
+      // Migrate old format
+      balances[userId] = { money: balances[userId], inventory: [], job: null };
+    }
+    if (!('inventory' in balances[userId])) balances[userId].inventory = [];
+    if (!('job' in balances[userId])) balances[userId].job = null;
   }
 
   if (command === 'balance') {
@@ -75,6 +86,41 @@ client.on('messageCreate', async (message) => {
     balances[userId].money += earned;
     saveBalances(balances);
     message.reply(`You earned $${earned}! Your new balance is $${balances[userId].money}.`);
+  }
+
+  if (command === 'applyjob') {
+    if (args.length === 0) {
+      let jobList = JOBS.map(j => `- ${j.name} ($${j.salary}/work)`).join('\n');
+      message.reply(`Available jobs:\n${jobList}\nUse !applyjob <jobname> to apply.`);
+      return;
+    }
+    const jobName = args.join(' ').toLowerCase();
+    const job = JOBS.find(j => j.name.toLowerCase() === jobName);
+    if (!job) {
+      message.reply('Job not found. Use !applyjob to see available jobs.');
+      return;
+    }
+    balances[userId].job = job.name;
+    saveBalances(balances);
+    message.reply(`You have successfully applied for the job: ${job.name}. Use !work to earn your salary!`);
+  }
+
+  if (command === 'work') {
+    const jobName = balances[userId].job;
+    if (!jobName) {
+      message.reply('You do not have a job. Use !applyjob to see available jobs.');
+      return;
+    }
+    const job = JOBS.find(j => j.name === jobName);
+    if (!job) {
+      message.reply('Your job is no longer available. Please apply for a new job.');
+      balances[userId].job = null;
+      saveBalances(balances);
+      return;
+    }
+    balances[userId].money += job.salary;
+    saveBalances(balances);
+    message.reply(`You worked as a ${job.name} and earned $${job.salary}! Your new balance is $${balances[userId].money}.`);
   }
 
   if (command === 'leaderboard') {
@@ -98,7 +144,7 @@ client.on('messageCreate', async (message) => {
   }
 
   if (command === 'changelog') {
-    const changelog = `**Changelog:**\n- Added !balance, !earn, !leaderboard commands\n- Switched to JavaScript version\n- Added !changelog command\n- Advanced data saver for balances and inventory`;
+    const changelog = `**Changelog:**\n- Added !balance, !earn, !leaderboard commands\n- Switched to JavaScript version\n- Added !changelog command\n- Advanced data saver for balances and inventory\n- Added jobs system (!applyjob, !work)`;
     message.reply(changelog);
   }
 });
