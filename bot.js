@@ -49,7 +49,7 @@ const COMMAND_SECTIONS = [
     title: 'ℹ️ Info',
     cmds: [
       { cmd: '-changelog', desc: 'Show the latest bot changes.' },
-      { cmd: '-cmds or -commands', desc: 'Show this command list.' }
+      { cmd: '-cmds or -commands or -help', desc: 'Show this command list.' }
     ]
   }
 ];
@@ -231,7 +231,7 @@ client.on('messageCreate', async (message) => {
     message.reply(changelog);
   }
 
-  if (command === 'cmds' || command === 'commands') {
+  if (command === 'cmds' || command === 'commands' || command === 'help') {
     let msg = '**Available Commands:**\n';
     for (const section of COMMAND_SECTIONS) {
       msg += `\n__${section.title}__\n`;
