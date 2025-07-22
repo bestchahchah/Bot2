@@ -235,7 +235,7 @@ client.on('messageCreate', async (message) => {
   }
 
   if (command === 'changelog') {
-    const changelog = `**Changelog:**\n- ${CHANGELOG.join('\n- ')}`;
+    const changelog = `__**📜 Bot Changelog**__\n\n${CHANGELOG.map(e => `• ${e}`).join('\n')}`;
     message.reply(changelog);
   }
 
