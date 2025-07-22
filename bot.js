@@ -17,16 +17,41 @@ const CHANGELOG = [
   'Added merchant Tucker (!merchant)'
 ];
 
-const COMMANDS_LIST = [
-  { cmd: '!balance', desc: 'Check your current balance.' },
-  { cmd: '!leaderboard', desc: 'Show the top 10 richest users.' },
-  { cmd: '!applyjob', desc: 'See available jobs or apply for one.' },
-  { cmd: '!work', desc: 'Work your job to earn your salary.' },
-  { cmd: '!merchant', desc: 'Talk to Tucker the merchant.' },
-  { cmd: '!changelog', desc: 'Show the latest bot changes.' },
-  { cmd: '!cmds or !commands', desc: 'Show this command list.' },
-  { cmd: '!profile [@user]', desc: 'Show your or another user\'s profile.' },
-  { cmd: 'Energy', desc: 'Work uses energy. You recover 1 energy every 30 minutes. Max 5 energy.' }
+const COMMAND_SECTIONS = [
+  {
+    title: '💰 Economy',
+    cmds: [
+      { cmd: '!balance', desc: 'Check your current balance.' },
+      { cmd: '!leaderboard', desc: 'Show the top 10 richest users.' }
+    ]
+  },
+  {
+    title: '💼 Jobs',
+    cmds: [
+      { cmd: '!applyjob', desc: 'See available jobs or apply for one.' },
+      { cmd: '!work', desc: 'Work your job to earn your salary.' },
+      { cmd: 'Energy', desc: 'Work uses energy. You recover 1 energy every 30 minutes. Max 100 energy. Each work costs 10 energy.' }
+    ]
+  },
+  {
+    title: '🛒 Merchant',
+    cmds: [
+      { cmd: '!merchant', desc: 'Talk to Tucker the merchant.' }
+    ]
+  },
+  {
+    title: '👤 Profile',
+    cmds: [
+      { cmd: '!profile [@user]', desc: 'Show your or another user\'s profile.' }
+    ]
+  },
+  {
+    title: 'ℹ️ Info',
+    cmds: [
+      { cmd: '!changelog', desc: 'Show the latest bot changes.' },
+      { cmd: '!cmds or !commands', desc: 'Show this command list.' }
+    ]
+  }
 ];
 
 const client = new Client({
@@ -208,8 +233,11 @@ client.on('messageCreate', async (message) => {
 
   if (command === 'cmds' || command === 'commands') {
     let msg = '**Available Commands:**\n';
-    for (const c of COMMANDS_LIST) {
-      msg += `${c.cmd} — ${c.desc}\n`;
+    for (const section of COMMAND_SECTIONS) {
+      msg += `\n__${section.title}__\n`;
+      for (const c of section.cmds) {
+        msg += `${c.cmd} — ${c.desc}\n`;
+      }
     }
     message.reply(msg);
   }
