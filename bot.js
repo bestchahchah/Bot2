@@ -268,6 +268,16 @@ client.on('messageCreate', async (message) => {
     balances[userId].energy -= ENERGY_COST_PER_WORK;
     balances[userId].lastWork = now;
     balances[userId].money += job.salary;
+    // Company profit sharing
+    if (balances[userId].companyId) {
+      const companies = loadCompanies();
+      const cid = balances[userId].companyId;
+      if (companies[cid]) {
+        const companyShare = Math.floor(job.salary * 0.10);
+        companies[cid].funds += companyShare;
+        saveCompanies(companies);
+      }
+    }
     saveBalances(balances);
     message.reply(`You worked as a ${job.name} and earned ${job.salary} gummies! Your new gummies balance is ${balances[userId].money}. Energy left: ${balances[userId].energy}/${MAX_ENERGY}`);
   }
