@@ -75,9 +75,10 @@ const JOBS = [
   { name: 'Chef', salary: 180 }
 ];
 
-const MAX_ENERGY = 5;
+const MAX_ENERGY = 100;
 const ENERGY_RECOVERY_MINUTES = 30; // 1 energy recovers every 30 minutes
 const WORK_COOLDOWN_SECONDS = 60 * 10; // 10 minutes cooldown between works
+const ENERGY_COST_PER_WORK = 10;
 
 client.once('ready', () => {
   console.log(`Logged in as ${client.user.tag}`);
@@ -161,14 +162,15 @@ client.on('messageCreate', async (message) => {
       return;
     }
     // Energy check
-    if (balances[userId].energy <= 0) {
-      // Time until next energy
+    if (balances[userId].energy < ENERGY_COST_PER_WORK) {
+      // Time until enough energy
+      const needed = ENERGY_COST_PER_WORK - balances[userId].energy;
       const nextEnergyIn = msPerEnergy - (now - balances[userId].lastEnergy);
-      const min = Math.ceil(nextEnergyIn / 60000);
-      message.reply(`You are out of energy! You will recover 1 energy in ${min} minute(s).`);
+      const min = Math.ceil((needed * msPerEnergy - (now - balances[userId].lastEnergy)) / 60000);
+      message.reply(`You need at least ${ENERGY_COST_PER_WORK} energy to work! You will have enough in ${min} minute(s).`);
       return;
     }
-    balances[userId].energy -= 1;
+    balances[userId].energy -= ENERGY_COST_PER_WORK;
     balances[userId].lastWork = now;
     balances[userId].money += job.salary;
     saveBalances(balances);
