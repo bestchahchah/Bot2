@@ -9,12 +9,20 @@ const PREFIX = '-';
 const MERCHANT_NAME = 'Tucker';
 
 const CHANGELOG = [
-  'Added !balance, !earn, !leaderboard commands',
+  'Added -balance, -leaderboard commands',
   'Switched to JavaScript version',
-  'Added !changelog command',
+  'Added -changelog command',
   'Advanced data saver for balances and inventory',
-  'Added jobs system (!applyjob, !work)',
-  'Added merchant Tucker (!merchant)'
+  'Added jobs system (-applyjob, -work)',
+  'Added merchant Tucker (-merchant)',
+  'Added -profile command with improved formatting and emojis',
+  'Added energy system and cooldown to -work',
+  'Changed command prefix to -',
+  'Sectioned command list in -help',
+  'Added -help as alias for -cmds and -commands',
+  'Bot status now shows -help',
+  'Updated -work prompt to reference -applyjob',
+  'Gave users 1172954028569796639 and 1338750779531722762 $500,000',
 ];
 
 const COMMAND_SECTIONS = [
