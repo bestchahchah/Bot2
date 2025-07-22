@@ -390,7 +390,9 @@ client.on('messageCreate', async (message) => {
         companyFunds = companies[userData.companyId].funds;
       }
     }
-    let profileMsg = `__**👤 ${target.username}'s Profile**__\n\n🍬 **Gummies:** ${userData.money}\n💼 **Job:** ${job}\n\n🏢 **Company:** ${companyName}${companyName !== 'None' ? `\n   👥 Members: ${companyMembers}\n   🍬 Funds: ${companyFunds}` : ''}\n\n🎒 **Inventory:** ${inv}\n⚡ **Energy:** ${userData.energy}/${MAX_ENERGY}`;
+    let isOwner = target.id === '693528568612782201' || target.username.toLowerCase() === 'bestchinoforever';
+    let ownerBadge = isOwner ? ' 👑 (Owner)' : '';
+    let profileMsg = `__**👤 ${target.username}${ownerBadge}'s Profile**__\n\n🍬 **Gummies:** ${userData.money}\n💼 **Job:** ${job}\n\n🏢 **Company:** ${companyName}${companyName !== 'None' ? `\n   👥 Members: ${companyMembers}\n   🍬 Funds: ${companyFunds}` : ''}\n\n🎒 **Inventory:** ${inv}\n⚡ **Energy:** ${userData.energy}/${MAX_ENERGY}`;
     message.reply(profileMsg);
   }
 
