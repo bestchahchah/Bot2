@@ -17,6 +17,17 @@ const CHANGELOG = [
   'Added merchant Tucker (!merchant)'
 ];
 
+const COMMANDS_LIST = [
+  { cmd: '!balance', desc: 'Check your current balance.' },
+  { cmd: '!earn', desc: 'Earn a fixed amount of money.' },
+  { cmd: '!leaderboard', desc: 'Show the top 10 richest users.' },
+  { cmd: '!applyjob', desc: 'See available jobs or apply for one.' },
+  { cmd: '!work', desc: 'Work your job to earn your salary.' },
+  { cmd: '!merchant', desc: 'Talk to Tucker the merchant.' },
+  { cmd: '!changelog', desc: 'Show the latest bot changes.' },
+  { cmd: '!cmds or !commands', desc: 'Show this command list.' }
+];
+
 const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent]
 });
@@ -160,6 +171,14 @@ client.on('messageCreate', async (message) => {
   if (command === 'changelog') {
     const changelog = `**Changelog:**\n- ${CHANGELOG.join('\n- ')}`;
     message.reply(changelog);
+  }
+
+  if (command === 'cmds' || command === 'commands') {
+    let msg = '**Available Commands:**\n';
+    for (const c of COMMANDS_LIST) {
+      msg += `${c.cmd} — ${c.desc}\n`;
+    }
+    message.reply(msg);
   }
 });
 
