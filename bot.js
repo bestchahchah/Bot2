@@ -8,6 +8,15 @@ const BACKUP_FILE = 'balances_backup.json';
 const PREFIX = '!';
 const MERCHANT_NAME = 'Tucker';
 
+const CHANGELOG = [
+  'Added !balance, !earn, !leaderboard commands',
+  'Switched to JavaScript version',
+  'Added !changelog command',
+  'Advanced data saver for balances and inventory',
+  'Added jobs system (!applyjob, !work)',
+  'Added merchant Tucker (!merchant)'
+];
+
 const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent]
 });
@@ -149,7 +158,7 @@ client.on('messageCreate', async (message) => {
   }
 
   if (command === 'changelog') {
-    const changelog = `**Changelog:**\n- Added !balance, !earn, !leaderboard commands\n- Switched to JavaScript version\n- Added !changelog command\n- Advanced data saver for balances and inventory\n- Added jobs system (!applyjob, !work)\n- Added merchant Tucker (!merchant)`;
+    const changelog = `**Changelog:**\n- ${CHANGELOG.join('\n- ')}`;
     message.reply(changelog);
   }
 });
