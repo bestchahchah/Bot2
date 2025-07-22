@@ -114,6 +114,12 @@ const COMMAND_SECTIONS = [
       { cmd: '-changelog', desc: 'Show the latest bot changes.' },
       { cmd: '-cmds or -commands or -help', desc: 'Show this command list.' }
     ]
+  },
+  {
+    title: '💰 Economy',
+    cmds: [
+      { cmd: '-setsalary <amount>', desc: 'Set your company job salary (owner only).' }
+    ]
   }
 ];
 
@@ -604,6 +610,27 @@ client.on('messageCreate', async (message) => {
 
   if (command === 'companyupgrades') {
     message.reply('Company upgrades coming soon!');
+  }
+
+  if (command === 'setsalary') {
+    const companies = loadCompanies();
+    const cid = balances[userId].companyId;
+    if (!cid || !companies[cid]) {
+      message.reply('You are not in a company.');
+      return;
+    }
+    if (companies[cid].owner !== userId) {
+      message.reply('Only the company owner can set the salary.');
+      return;
+    }
+    let amount = parseInt(args[0]);
+    if (isNaN(amount) || amount <= 0) {
+      message.reply('Please specify a valid salary amount.');
+      return;
+    }
+    companies[cid].salary = amount;
+    saveCompanies(companies);
+    message.reply(`Company job salary set to ${amount} gummies.`);
   }
 });
 
