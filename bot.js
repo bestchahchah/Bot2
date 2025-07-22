@@ -165,7 +165,7 @@ client.on('messageCreate', async (message) => {
   if (command === 'work') {
     const jobName = balances[userId].job;
     if (!jobName) {
-      message.reply('You do not have a job. Use !applyjob to see available jobs.');
+      message.reply('You do not have a job. Use -applyjob to see available jobs.');
       return;
     }
     const job = JOBS.find(j => j.name === jobName);
