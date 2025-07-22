@@ -25,7 +25,8 @@ const COMMANDS_LIST = [
   { cmd: '!merchant', desc: 'Talk to Tucker the merchant.' },
   { cmd: '!changelog', desc: 'Show the latest bot changes.' },
   { cmd: '!cmds or !commands', desc: 'Show this command list.' },
-  { cmd: '!profile [@user]', desc: 'Show your or another user\'s profile.' }
+  { cmd: '!profile [@user]', desc: 'Show your or another user\'s profile.' },
+  { cmd: 'Energy', desc: 'Work uses energy. You recover 1 energy every 30 minutes. Max 5 energy.' }
 ];
 
 const client = new Client({
@@ -74,6 +75,10 @@ const JOBS = [
   { name: 'Chef', salary: 180 }
 ];
 
+const MAX_ENERGY = 5;
+const ENERGY_RECOVERY_MINUTES = 30; // 1 energy recovers every 30 minutes
+const WORK_COOLDOWN_SECONDS = 60 * 10; // 10 minutes cooldown between works
+
 client.once('ready', () => {
   console.log(`Logged in as ${client.user.tag}`);
 });
@@ -85,16 +90,28 @@ client.on('messageCreate', async (message) => {
   const userId = message.author.id;
   let balances = loadBalances();
 
-  // Ensure user data structure supports future inventory and job
+  // Ensure user data structure supports future inventory, job, energy, and lastWork
   if (!balances[userId]) {
-    balances[userId] = { money: 0, inventory: [], job: null };
+    balances[userId] = { money: 0, inventory: [], job: null, energy: MAX_ENERGY, lastWork: 0, lastEnergy: Date.now() };
   } else {
     if (typeof balances[userId] === 'number') {
-      // Migrate old format
-      balances[userId] = { money: balances[userId], inventory: [], job: null };
+      balances[userId] = { money: balances[userId], inventory: [], job: null, energy: MAX_ENERGY, lastWork: 0, lastEnergy: Date.now() };
     }
     if (!('inventory' in balances[userId])) balances[userId].inventory = [];
     if (!('job' in balances[userId])) balances[userId].job = null;
+    if (!('energy' in balances[userId])) balances[userId].energy = MAX_ENERGY;
+    if (!('lastWork' in balances[userId])) balances[userId].lastWork = 0;
+    if (!('lastEnergy' in balances[userId])) balances[userId].lastEnergy = Date.now();
+  }
+
+  // Energy recovery logic
+  const now = Date.now();
+  const msPerEnergy = ENERGY_RECOVERY_MINUTES * 60 * 1000;
+  let energyToRecover = Math.floor((now - balances[userId].lastEnergy) / msPerEnergy);
+  if (energyToRecover > 0) {
+    balances[userId].energy = Math.min(MAX_ENERGY, balances[userId].energy + energyToRecover);
+    balances[userId].lastEnergy += energyToRecover * msPerEnergy;
+    saveBalances(balances);
   }
 
   if (command === 'balance') {
@@ -132,9 +149,30 @@ client.on('messageCreate', async (message) => {
       saveBalances(balances);
       return;
     }
+    // Cooldown check
+    const lastWork = balances[userId].lastWork || 0;
+    const now = Date.now();
+    const secondsSinceLastWork = Math.floor((now - lastWork) / 1000);
+    if (secondsSinceLastWork < WORK_COOLDOWN_SECONDS) {
+      const timeLeft = WORK_COOLDOWN_SECONDS - secondsSinceLastWork;
+      const min = Math.floor(timeLeft / 60);
+      const sec = timeLeft % 60;
+      message.reply(`You are tired! You can work again in ${min}m ${sec}s.`);
+      return;
+    }
+    // Energy check
+    if (balances[userId].energy <= 0) {
+      // Time until next energy
+      const nextEnergyIn = msPerEnergy - (now - balances[userId].lastEnergy);
+      const min = Math.ceil(nextEnergyIn / 60000);
+      message.reply(`You are out of energy! You will recover 1 energy in ${min} minute(s).`);
+      return;
+    }
+    balances[userId].energy -= 1;
+    balances[userId].lastWork = now;
     balances[userId].money += job.salary;
     saveBalances(balances);
-    message.reply(`You worked as a ${job.name} and earned $${job.salary}! Your new balance is $${balances[userId].money}.`);
+    message.reply(`You worked as a ${job.name} and earned $${job.salary}! Your new balance is $${balances[userId].money}. Energy left: ${balances[userId].energy}/${MAX_ENERGY}`);
   }
 
   if (command === 'leaderboard') {
