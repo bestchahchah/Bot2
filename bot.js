@@ -361,12 +361,12 @@ client.on('messageCreate', async (message) => {
   if (command === 'cmds' || command === 'commands' || command === 'help') {
     let msg = '**Available Commands:**\n';
     for (const section of COMMAND_SECTIONS) {
-      msg += `\n__${section.title}__\n`;
+      msg += `\n**${section.title}**\n`;
       for (const c of section.cmds) {
-        msg += `${c.cmd} — ${c.desc}\n`;
+        msg += `  ${c.cmd} — ${c.desc}\n`;
       }
     }
-    message.reply(msg);
+    message.reply(msg.trim());
   }
 
   if (command === 'profile') {
