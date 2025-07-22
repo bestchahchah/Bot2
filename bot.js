@@ -380,11 +380,17 @@ client.on('messageCreate', async (message) => {
     let job = userData.job ? userData.job : 'None';
     let inv = userData.inventory && userData.inventory.length > 0 ? userData.inventory.join(', ') : 'Empty';
     let companyName = 'None';
+    let companyMembers = 0;
+    let companyFunds = 0;
     if (userData.companyId) {
       const companies = loadCompanies();
-      if (companies[userData.companyId]) companyName = companies[userData.companyId].name;
+      if (companies[userData.companyId]) {
+        companyName = companies[userData.companyId].name;
+        companyMembers = companies[userData.companyId].members.length;
+        companyFunds = companies[userData.companyId].funds;
+      }
     }
-    let profileMsg = `__**👤 Profile for ${target.username}**__\n\n🍬 **Gummies:** ${userData.money}\n💼 **Job:** ${job}\n🏢 **Company:** ${companyName}\n🎒 **Inventory:** ${inv}\n⚡ **Energy:** ${userData.energy}/${MAX_ENERGY}`;
+    let profileMsg = `__**👤 ${target.username}'s Profile**__\n\n🍬 **Gummies:** ${userData.money}\n💼 **Job:** ${job}\n\n🏢 **Company:** ${companyName}${companyName !== 'None' ? `\n   👥 Members: ${companyMembers}\n   🍬 Funds: ${companyFunds}` : ''}\n\n🎒 **Inventory:** ${inv}\n⚡ **Energy:** ${userData.energy}/${MAX_ENERGY}`;
     message.reply(profileMsg);
   }
 
