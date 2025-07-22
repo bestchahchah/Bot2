@@ -3,7 +3,7 @@ from discord.ext import commands
 import json
 import os
 
-TOKEN = "ODMxMzI2MTQwODAyMjY5MjA0.GFeBc-.Eqt090-kH8StZxy7swEFSSIySaHBsYoR05XFS0"
+TOKEN = "ODMxMzI2MTQwODAyMjY5MjA0.Gt6hmz.L4I-UtsC5FHbHUgpunRUR14S_zLLaXdQsJOalA"
 BALANCES_FILE = "balances.json"
 
 intents = discord.Intents.default()
