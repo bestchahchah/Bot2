@@ -224,7 +224,7 @@ client.on('messageCreate', async (message) => {
     }
     let job = userData.job ? userData.job : 'None';
     let inv = userData.inventory && userData.inventory.length > 0 ? userData.inventory.join(', ') : 'Empty';
-    let profileMsg = `**Profile for ${target.username}:**\nBalance: $${userData.money}\nJob: ${job}\nInventory: ${inv}\nEnergy: ${userData.energy}/${MAX_ENERGY}`;
+    let profileMsg = `__**👤 Profile for ${target.username}**__\n\n💰 **Balance:** $${userData.money}\n💼 **Job:** ${job}\n🎒 **Inventory:** ${inv}\n⚡ **Energy:** ${userData.energy}/${MAX_ENERGY}`;
     message.reply(profileMsg);
   }
 });
