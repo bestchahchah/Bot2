@@ -7,6 +7,7 @@ const BALANCES_FILE = 'balances.json';
 const BACKUP_FILE = 'balances_backup.json';
 const PREFIX = '-';
 const MERCHANT_NAME = 'Tucker';
+const COMPANIES_FILE = 'companies.json';
 
 const CHANGELOG = [
   'Added -balance, -leaderboard commands',
@@ -90,7 +91,15 @@ const COMMAND_SECTIONS = [
   {
     title: '🏢 Companies',
     cmds: [
-      { cmd: '-makecompany <name>', desc: 'Create your own company.' }
+      { cmd: '-makecompany <name>', desc: 'Create your own company.' },
+      { cmd: '-invite <@user>', desc: 'Invite a user to your company (owner only).' },
+      { cmd: '-accept', desc: 'Accept a company invite.' },
+      { cmd: '-leavecompany', desc: 'Leave your current company.' },
+      { cmd: '-company [name]', desc: 'View a company profile.' },
+      { cmd: '-companylb', desc: 'View the top companies by member wealth.' },
+      { cmd: '-companydeposit <amount>', desc: 'Deposit money into your company funds.' },
+      { cmd: '-companywithdraw <amount>', desc: 'Withdraw money from your company funds (owner only).' },
+      { cmd: '-companyupgrades', desc: 'View company upgrades (coming soon).' }
     ]
   },
   {
@@ -147,6 +156,15 @@ function saveBalances(balances) {
   atomicWrite(BALANCES_FILE, data);
 }
 
+function loadCompanies() {
+  if (!fs.existsSync(COMPANIES_FILE)) return {};
+  return JSON.parse(fs.readFileSync(COMPANIES_FILE));
+}
+
+function saveCompanies(companies) {
+  fs.writeFileSync(COMPANIES_FILE, JSON.stringify(companies));
+}
+
 const JOBS = [
   { name: 'Cashier', salary: 150 },
   { name: 'Programmer', salary: 300 },
@@ -172,19 +190,14 @@ client.on('messageCreate', async (message) => {
   const userId = message.author.id;
   let balances = loadBalances();
 
-  // Ensure user data structure supports future inventory, job, energy, lastWork, lastEnergy, and company
+  // Ensure user data structure supports companyId
   if (!balances[userId]) {
-    balances[userId] = { money: 0, inventory: [], job: null, energy: MAX_ENERGY, lastWork: 0, lastEnergy: Date.now(), company: null };
+    balances[userId] = { money: 0, inventory: [], job: null, energy: MAX_ENERGY, lastWork: 0, lastEnergy: Date.now(), companyId: null };
   } else {
     if (typeof balances[userId] === 'number') {
-      balances[userId] = { money: balances[userId], inventory: [], job: null, energy: MAX_ENERGY, lastWork: 0, lastEnergy: Date.now(), company: null };
+      balances[userId] = { money: balances[userId], inventory: [], job: null, energy: MAX_ENERGY, lastWork: 0, lastEnergy: Date.now(), companyId: null };
     }
-    if (!('inventory' in balances[userId])) balances[userId].inventory = [];
-    if (!('job' in balances[userId])) balances[userId].job = null;
-    if (!('energy' in balances[userId])) balances[userId].energy = MAX_ENERGY;
-    if (!('lastWork' in balances[userId])) balances[userId].lastWork = 0;
-    if (!('lastEnergy' in balances[userId])) balances[userId].lastEnergy = Date.now();
-    if (!('company' in balances[userId])) balances[userId].company = null;
+    if (!('companyId' in balances[userId])) balances[userId].companyId = null;
   }
 
   // Energy recovery logic
@@ -260,8 +273,10 @@ client.on('messageCreate', async (message) => {
   }
 
   if (command === 'makecompany') {
-    if (balances[userId].company) {
-      message.reply('You already own a company: ' + balances[userId].company);
+    if (balances[userId].companyId) {
+      const companies = loadCompanies();
+      const company = companies[balances[userId].companyId];
+      message.reply('You already own or are a member of a company: ' + (company ? company.name : 'Unknown'));
       return;
     }
     if (args.length === 0) {
@@ -273,15 +288,27 @@ client.on('messageCreate', async (message) => {
       return;
     }
     const companyName = args.join(' ');
+    const companies = loadCompanies();
     // Prevent duplicate company names
-    const allCompanies = Object.values(balances).map(u => u.company && u.company.toLowerCase()).filter(Boolean);
+    const allCompanies = Object.values(companies).map(c => c.name.toLowerCase());
     if (allCompanies.includes(companyName.toLowerCase())) {
       message.reply('A company with that name already exists. Please choose another name.');
       return;
     }
-    balances[userId].company = companyName;
+    // Create company
+    const companyId = Date.now().toString() + Math.floor(Math.random()*1000).toString();
+    companies[companyId] = {
+      name: companyName,
+      owner: userId,
+      members: [userId],
+      funds: 0,
+      invites: [],
+      upgrades: []
+    };
+    balances[userId].companyId = companyId;
     balances[userId].money -= COMPANY_COST;
     saveBalances(balances);
+    saveCompanies(companies);
     message.reply(`🎉 Company created! You are now the owner of "${companyName}". ($${COMPANY_COST.toLocaleString()} deducted)`);
   }
 
@@ -339,9 +366,198 @@ client.on('messageCreate', async (message) => {
     }
     let job = userData.job ? userData.job : 'None';
     let inv = userData.inventory && userData.inventory.length > 0 ? userData.inventory.join(', ') : 'Empty';
-    let company = userData.company ? userData.company : 'None';
-    let profileMsg = `__**👤 Profile for ${target.username}**__\n\n💰 **Balance:** $${userData.money}\n💼 **Job:** ${job}\n🏢 **Company:** ${company}\n🎒 **Inventory:** ${inv}\n⚡ **Energy:** ${userData.energy}/${MAX_ENERGY}`;
+    let companyName = 'None';
+    if (userData.companyId) {
+      const companies = loadCompanies();
+      if (companies[userData.companyId]) companyName = companies[userData.companyId].name;
+    }
+    let profileMsg = `__**👤 Profile for ${target.username}**__\n\n💰 **Balance:** $${userData.money}\n💼 **Job:** ${job}\n🏢 **Company:** ${companyName}\n🎒 **Inventory:** ${inv}\n⚡ **Energy:** ${userData.energy}/${MAX_ENERGY}`;
     message.reply(profileMsg);
+  }
+
+  if (command === 'invite') {
+    const companies = loadCompanies();
+    const userCompanyId = balances[userId].companyId;
+    if (!userCompanyId || !companies[userCompanyId] || companies[userCompanyId].owner !== userId) {
+      message.reply('You must be the owner of a company to invite members.');
+      return;
+    }
+    const mention = message.mentions.users.first();
+    if (!mention) {
+      message.reply('Please mention a user to invite.');
+      return;
+    }
+    const targetId = mention.id;
+    if (balances[targetId] && balances[targetId].companyId) {
+      message.reply('That user is already in a company.');
+      return;
+    }
+    if (companies[userCompanyId].invites.includes(targetId)) {
+      message.reply('That user has already been invited.');
+      return;
+    }
+    companies[userCompanyId].invites.push(targetId);
+    saveCompanies(companies);
+    message.reply(`Invite sent to ${mention.username}. They can use -accept to join your company.`);
+  }
+
+  if (command === 'accept') {
+    const companies = loadCompanies();
+    if (balances[userId].companyId) {
+      message.reply('You are already in a company.');
+      return;
+    }
+    let found = null;
+    for (const [cid, c] of Object.entries(companies)) {
+      if (c.invites.includes(userId)) {
+        found = cid;
+        break;
+      }
+    }
+    if (!found) {
+      message.reply('You have no pending company invites.');
+      return;
+    }
+    companies[found].members.push(userId);
+    companies[found].invites = companies[found].invites.filter(i => i !== userId);
+    balances[userId].companyId = found;
+    saveBalances(balances);
+    saveCompanies(companies);
+    message.reply(`You have joined the company: ${companies[found].name}`);
+  }
+
+  if (command === 'leavecompany') {
+    const companies = loadCompanies();
+    const cid = balances[userId].companyId;
+    if (!cid || !companies[cid]) {
+      message.reply('You are not in a company.');
+      return;
+    }
+    if (companies[cid].owner === userId) {
+      // Owner leaving: disband company
+      for (const member of companies[cid].members) {
+        if (balances[member]) balances[member].companyId = null;
+      }
+      delete companies[cid];
+      saveBalances(balances);
+      saveCompanies(companies);
+      message.reply('You were the owner. Company disbanded.');
+      return;
+    }
+    // Member leaving
+    companies[cid].members = companies[cid].members.filter(m => m !== userId);
+    balances[userId].companyId = null;
+    saveBalances(balances);
+    saveCompanies(companies);
+    message.reply('You have left your company.');
+  }
+
+  if (command === 'company') {
+    const companies = loadCompanies();
+    let targetCompany = null;
+    if (args.length === 0 && balances[userId].companyId) {
+      targetCompany = companies[balances[userId].companyId];
+    } else if (args.length > 0) {
+      const name = args.join(' ').toLowerCase();
+      targetCompany = Object.values(companies).find(c => c.name.toLowerCase() === name);
+    }
+    if (!targetCompany) {
+      message.reply('Company not found.');
+      return;
+    }
+    let ownerName = 'Unknown';
+    try {
+      const ownerUser = await client.users.fetch(targetCompany.owner);
+      ownerName = ownerUser.username;
+    } catch {}
+    let memberNames = [];
+    for (const m of targetCompany.members) {
+      try {
+        const u = await client.users.fetch(m);
+        memberNames.push(u.username);
+      } catch {
+        memberNames.push('Unknown');
+      }
+    }
+    let funds = targetCompany.funds || 0;
+    let upgrades = targetCompany.upgrades && targetCompany.upgrades.length > 0 ? targetCompany.upgrades.join(', ') : 'None';
+    let msg = `__**🏢 Company: ${targetCompany.name}**__\n\n👑 Owner: ${ownerName}\n👥 Members (${memberNames.length}): ${memberNames.join(', ')}\n💰 Funds: $${funds}\n🔧 Upgrades: ${upgrades}`;
+    message.reply(msg);
+  }
+
+  if (command === 'companylb') {
+    const companies = loadCompanies();
+    // Sort by total member wealth
+    const leaderboard = Object.entries(companies).map(([cid, c]) => {
+      let total = 0;
+      for (const m of c.members) {
+        if (balances[m]) total += balances[m].money;
+      }
+      return { name: c.name, total, members: c.members.length };
+    }).sort((a, b) => b.total - a.total).slice(0, 10);
+    if (leaderboard.length === 0) {
+      message.reply('No companies found.');
+      return;
+    }
+    let msg = '**🏢 Company Leaderboard:**\n';
+    leaderboard.forEach((c, i) => {
+      msg += `${i+1}. ${c.name} — $${c.total} (${c.members} members)\n`;
+    });
+    message.reply(msg);
+  }
+
+  if (command === 'companydeposit') {
+    const companies = loadCompanies();
+    const cid = balances[userId].companyId;
+    if (!cid || !companies[cid]) {
+      message.reply('You are not in a company.');
+      return;
+    }
+    let amount = parseInt(args[0]);
+    if (isNaN(amount) || amount <= 0) {
+      message.reply('Please specify a valid amount to deposit.');
+      return;
+    }
+    if (balances[userId].money < amount) {
+      message.reply('You do not have enough money.');
+      return;
+    }
+    balances[userId].money -= amount;
+    companies[cid].funds += amount;
+    saveBalances(balances);
+    saveCompanies(companies);
+    message.reply(`Deposited $${amount} to your company funds.`);
+  }
+
+  if (command === 'companywithdraw') {
+    const companies = loadCompanies();
+    const cid = balances[userId].companyId;
+    if (!cid || !companies[cid]) {
+      message.reply('You are not in a company.');
+      return;
+    }
+    if (companies[cid].owner !== userId) {
+      message.reply('Only the company owner can withdraw funds.');
+      return;
+    }
+    let amount = parseInt(args[0]);
+    if (isNaN(amount) || amount <= 0) {
+      message.reply('Please specify a valid amount to withdraw.');
+      return;
+    }
+    if (companies[cid].funds < amount) {
+      message.reply('Company does not have enough funds.');
+      return;
+    }
+    companies[cid].funds -= amount;
+    balances[userId].money += amount;
+    saveBalances(balances);
+    saveCompanies(companies);
+    message.reply(`Withdrew $${amount} from your company funds.`);
+  }
+
+  if (command === 'companyupgrades') {
+    message.reply('Company upgrades coming soon!');
   }
 });
 
