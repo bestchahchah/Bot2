@@ -6,6 +6,7 @@ const TOKEN = "ODMxMzI2MTQwODAyMjY5MjA0.Gt6hmz.L4I-UtsC5FHbHUgpunRUR14S_zLLaXdQs
 const BALANCES_FILE = 'balances.json';
 const BACKUP_FILE = 'balances_backup.json';
 const PREFIX = '!';
+const MERCHANT_NAME = 'Tucker';
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent]
@@ -143,8 +144,12 @@ client.on('messageCreate', async (message) => {
     message.reply(msg);
   }
 
+  if (command === 'merchant') {
+    message.reply(`Greetings, traveler! I am ${MERCHANT_NAME}, the merchant. In the future, I'll have items for sale and buy your loot. Stay tuned for my shop!`);
+  }
+
   if (command === 'changelog') {
-    const changelog = `**Changelog:**\n- Added !balance, !earn, !leaderboard commands\n- Switched to JavaScript version\n- Added !changelog command\n- Advanced data saver for balances and inventory\n- Added jobs system (!applyjob, !work)`;
+    const changelog = `**Changelog:**\n- Added !balance, !earn, !leaderboard commands\n- Switched to JavaScript version\n- Added !changelog command\n- Advanced data saver for balances and inventory\n- Added jobs system (!applyjob, !work)\n- Added merchant Tucker (!merchant)`;
     message.reply(changelog);
   }
 });
