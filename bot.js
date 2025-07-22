@@ -19,7 +19,6 @@ const CHANGELOG = [
 
 const COMMANDS_LIST = [
   { cmd: '!balance', desc: 'Check your current balance.' },
-  { cmd: '!earn', desc: 'Earn a fixed amount of money.' },
   { cmd: '!leaderboard', desc: 'Show the top 10 richest users.' },
   { cmd: '!applyjob', desc: 'See available jobs or apply for one.' },
   { cmd: '!work', desc: 'Work your job to earn your salary.' },
@@ -101,13 +100,6 @@ client.on('messageCreate', async (message) => {
   if (command === 'balance') {
     const bal = balances[userId].money;
     message.reply(`Your balance is $${bal}.`);
-  }
-
-  if (command === 'earn') {
-    const earned = 100; // You can randomize this
-    balances[userId].money += earned;
-    saveBalances(balances);
-    message.reply(`You earned $${earned}! Your new balance is $${balances[userId].money}.`);
   }
 
   if (command === 'applyjob') {
