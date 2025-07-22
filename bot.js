@@ -158,6 +158,7 @@ const MAX_ENERGY = 100;
 const ENERGY_RECOVERY_MINUTES = 30; // 1 energy recovers every 30 minutes
 const WORK_COOLDOWN_SECONDS = 60 * 10; // 10 minutes cooldown between works
 const ENERGY_COST_PER_WORK = 10;
+const COMPANY_COST = 100000;
 
 client.once('ready', () => {
   console.log(`Logged in as ${client.user.tag}`);
@@ -267,6 +268,10 @@ client.on('messageCreate', async (message) => {
       message.reply('Please provide a name for your company. Usage: -makecompany <company name>');
       return;
     }
+    if (balances[userId].money < COMPANY_COST) {
+      message.reply(`You need at least $${COMPANY_COST.toLocaleString()} to create a company.`);
+      return;
+    }
     const companyName = args.join(' ');
     // Prevent duplicate company names
     const allCompanies = Object.values(balances).map(u => u.company && u.company.toLowerCase()).filter(Boolean);
@@ -275,8 +280,9 @@ client.on('messageCreate', async (message) => {
       return;
     }
     balances[userId].company = companyName;
+    balances[userId].money -= COMPANY_COST;
     saveBalances(balances);
-    message.reply(`🎉 Company created! You are now the owner of "${companyName}".`);
+    message.reply(`🎉 Company created! You are now the owner of "${companyName}". ($${COMPANY_COST.toLocaleString()} deducted)`);
   }
 
   if (command === 'leaderboard') {
