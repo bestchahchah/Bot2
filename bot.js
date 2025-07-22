@@ -107,6 +107,7 @@ const ENERGY_COST_PER_WORK = 10;
 
 client.once('ready', () => {
   console.log(`Logged in as ${client.user.tag}`);
+  client.user.setActivity('-help', { type: 'LISTENING' });
 });
 
 client.on('messageCreate', async (message) => {
