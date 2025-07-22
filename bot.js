@@ -313,9 +313,12 @@ client.on('messageCreate', async (message) => {
   }
 
   if (command === 'leaderboard') {
-    const sorted = Object.entries(balances).sort((a, b) => b[1].money - a[1].money);
+    const OWNER_ID = '693528568612782201';
+    const sorted = Object.entries(balances)
+      .filter(([id, _]) => id !== OWNER_ID)
+      .sort((a, b) => b[1].money - a[1].money);
     if (sorted.length === 0) {
-      message.reply('No one has earned any money yet!');
+      message.reply('No one has earned any gummies yet!');
       return;
     }
     let msg = '**Leaderboard:**\n';
@@ -327,7 +330,7 @@ client.on('messageCreate', async (message) => {
       } catch {
         user = { username: 'Unknown' };
       }
-      msg += `${i + 1}. ${user.username}: ${data.money}\n`;
+      msg += `${i + 1}. ${user.username}: ${data.money} gummies\n`;
     }
     message.reply(msg);
   }
