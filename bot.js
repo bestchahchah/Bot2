@@ -25,7 +25,8 @@ const COMMANDS_LIST = [
   { cmd: '!work', desc: 'Work your job to earn your salary.' },
   { cmd: '!merchant', desc: 'Talk to Tucker the merchant.' },
   { cmd: '!changelog', desc: 'Show the latest bot changes.' },
-  { cmd: '!cmds or !commands', desc: 'Show this command list.' }
+  { cmd: '!cmds or !commands', desc: 'Show this command list.' },
+  { cmd: '!profile [@user]', desc: 'Show your or another user\'s profile.' }
 ];
 
 const client = new Client({
@@ -179,6 +180,20 @@ client.on('messageCreate', async (message) => {
       msg += `${c.cmd} — ${c.desc}\n`;
     }
     message.reply(msg);
+  }
+
+  if (command === 'profile') {
+    let target = message.mentions.users.first() || message.author;
+    let targetId = target.id;
+    let userData = balances[targetId];
+    if (!userData) {
+      message.reply(`${target.username} does not have a profile yet.`);
+      return;
+    }
+    let job = userData.job ? userData.job : 'None';
+    let inv = userData.inventory && userData.inventory.length > 0 ? userData.inventory.join(', ') : 'Empty';
+    let profileMsg = `**Profile for ${target.username}:**\nBalance: $${userData.money}\nJob: ${job}\nInventory: ${inv}`;
+    message.reply(profileMsg);
   }
 });
 
