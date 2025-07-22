@@ -2,7 +2,7 @@ const { Client, GatewayIntentBits } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 
-const TOKEN = "ODMxMzI2MTQwODAyMjY5MjA0.Gt6hmz.L4I-UtsC5FHbHUgpunRUR14S_zLLaXdQsJOalA";
+const TOKEN = "ODMxMzI2MTQwODAyMjY5MjA0.GbZRIJ.9fIk3MVLnVqn5Ta0puj2e-Tw41VfFZ7hy8RvbU";
 const BALANCES_FILE = 'balances.json';
 const BACKUP_FILE = 'balances_backup.json';
 const PREFIX = '-';
