@@ -3,14 +3,17 @@
     "money": 1500,
     "lastWork": 0,
     "inventory": {},
-    "lastDaily": 1753601410182,
+    "job": null,
+    "energy": 100,
+    "lastEnergy": 0,
+    "companyId": null,
+    "lastDaily": 0,
     "stats": {
       "gamesPlayed": 0,
       "gamesWon": 0,
-      "totalEarned": 500,
+      "totalEarned": 1500,
       "totalSpent": 0
-    },
-    "streak": 1
+    }
   },
   "693528568612782201": {
     "money": 99999900000,
@@ -112,13 +115,16 @@
     "money": 1500,
     "lastWork": 0,
     "inventory": {},
-    "lastDaily": 1753601423121,
+    "job": null,
+    "energy": 100,
+    "lastEnergy": 0,
+    "companyId": null,
+    "lastDaily": 0,
     "stats": {
       "gamesPlayed": 0,
       "gamesWon": 0,
-      "totalEarned": 500,
+      "totalEarned": 1500,
       "totalSpent": 0
-    },
-    "streak": 1
+    }
   }
 }
