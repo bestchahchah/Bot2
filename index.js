@@ -11,6 +11,7 @@ const ButtonHandler = require('./utils/buttonHandler');
 const ScreenshotMonitor = require('./utils/screenshot');
 const hierarchy = require('./utils/hierarchy');
 const changelogManager = require('./utils/changelogManager');
+const configManager = require('./utils/configManager');
 const githubSync = require('./utils/githubSync');
 const { setupDiscordAuth } = require('./utils/discordAuth');
 
@@ -359,7 +360,16 @@ client.once('ready', async () => {
     // Initialize logger with Discord client
     logger.setClient(client, config.ownerId);
     
-    await logger.startup(`${client.user.tag} is online and ready!`);
+    // Load and apply saved bot mode on startup
+    const savedMode = configManager.getBotMode();
+    const discordStatus = configManager.getStatusForDiscord();
+    
+    client.user.setPresence({
+        activities: [{ name: discordStatus.activity.name, type: 0 }],
+        status: discordStatus.status
+    });
+    
+    await logger.startup(`${client.user.tag} is online and ready! Mode: ${savedMode}`);
     
     // Initialize database
     try {
@@ -755,6 +765,8 @@ app.post('/api/admin/users/:userId/give-money', requireAuth, (req, res) => {
             const uptime = discordClient && discordClient.readyAt && isOnline ? 
                 formatUptime(Date.now() - discordClient.readyAt.getTime()) : 'Offline';
             const commandsLoaded = client && client.commands ? client.commands.size : 0;
+            const currentMode = configManager.getBotMode();
+            const modeInfo = configManager.getModeInfo(currentMode);
             
             res.json({
                 online: isOnline,
@@ -764,7 +776,9 @@ app.post('/api/admin/users/:userId/give-money', requireAuth, (req, res) => {
                 commandsLoaded,
                 botTag: discordClient && discordClient.user ? discordClient.user.tag : 'Unknown',
                 botStopped,
-                currentStatus: discordClient && discordClient.user ? discordClient.user.presence?.status || 'online' : 'unknown'
+                currentStatus: discordClient && discordClient.user ? discordClient.user.presence?.status || 'online' : 'unknown',
+                botMode: currentMode,
+                modeInfo: modeInfo
             });
         } catch (error) {
             console.error('Error fetching bot status:', error);
@@ -861,6 +875,46 @@ app.post('/api/admin/users/:userId/give-money', requireAuth, (req, res) => {
         } catch (error) {
             console.error('Error restarting bot:', error);
             res.status(500).json({ success: false, message: 'Failed to restart bot: ' + error.message });
+        }
+    });
+
+    // Change bot mode endpoint with persistence
+    app.post('/api/admin/change-bot-mode', requireAuth, async (req, res) => {
+        try {
+            const { mode } = req.body;
+            
+            if (!mode) {
+                return res.status(400).json({ success: false, message: 'Mode is required' });
+            }
+
+            // Save the mode persistently
+            configManager.setBotMode(mode, 'admin');
+            
+            // Update Discord status if bot is online
+            if (discordClient && discordClient.user) {
+                const discordStatus = configManager.getStatusForDiscord();
+                await discordClient.user.setPresence({
+                    activities: [{ name: discordStatus.activity.name, type: 0 }],
+                    status: discordStatus.status
+                });
+            }
+            
+            // Log the change
+            console.log(`[ConfigManager] Bot mode changed to: ${mode}`);
+            if (changelogManager) {
+                changelogManager.addChange('update', `Bot mode switched to ${mode}`);
+            }
+            
+            const modeInfo = configManager.getModeInfo(mode);
+            res.json({ 
+                success: true, 
+                message: `Bot mode changed to ${modeInfo.name}`,
+                mode: mode,
+                modeInfo: modeInfo
+            });
+        } catch (error) {
+            console.error('Error changing bot mode:', error);
+            res.status(500).json({ success: false, message: 'Failed to change bot mode: ' + error.message });
         }
     });
 
