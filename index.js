@@ -471,7 +471,7 @@ app.post('/api/admin/users/:userId/give-money', requireAuth, (req, res) => {
             }
 
             user.balance = (user.balance || 0) + amount;
-            database.saveUser(userId, user);
+            database.updateUser(userId, user);
 
             logger.startup(`Admin gave ${amount} coins to ${user.username || userId} - Reason: ${reason || 'Admin panel'}`);
 
