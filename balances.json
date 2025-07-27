@@ -16,18 +16,18 @@
     }
   },
   "693528568612782201": {
-    "money": 99999900500,
-    "lastWork": 0,
+    "money": 99999902644,
+    "lastWork": 1753603564293,
     "inventory": {},
     "job": null,
-    "energy": 100,
-    "lastEnergy": 0,
+    "energy": 90,
+    "lastEnergy": 1753603564293,
     "companyId": "1753202975979919",
     "lastDaily": 0,
     "stats": {
-      "gamesPlayed": 0,
-      "gamesWon": 0,
-      "totalEarned": 99999900500,
+      "gamesPlayed": 1,
+      "gamesWon": 1,
+      "totalEarned": 99999903544,
       "totalSpent": 0
     }
   },
@@ -48,7 +48,7 @@
     }
   },
   "1172954028569796639": {
-    "money": 300600,
+    "money": 330600,
     "lastWork": 1753203229140,
     "inventory": {},
     "job": "Programmer",
@@ -112,19 +112,20 @@
     }
   },
   "1228876606202839061": {
-    "money": 1500,
-    "lastWork": 0,
+    "money": 2046,
+    "lastWork": 1753603588648,
     "inventory": {},
     "job": null,
-    "energy": 100,
-    "lastEnergy": 0,
+    "energy": 90,
+    "lastEnergy": 1753603588648,
     "companyId": null,
-    "lastDaily": 0,
+    "lastDaily": 1753603611985,
     "stats": {
       "gamesPlayed": 0,
       "gamesWon": 0,
-      "totalEarned": 1500,
+      "totalEarned": 2046,
       "totalSpent": 0
-    }
+    },
+    "streak": 1
   }
 }
