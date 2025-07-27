@@ -370,7 +370,8 @@ client.once('ready', async () => {
     }
     
     // Initialize configManager with database support
-    configManager = require('./utils/configManager');
+    const ConfigManager = require('./utils/configManager');
+    configManager = new ConfigManager(database);
     
     // Load and apply saved bot mode on startup
     const savedMode = configManager.getBotMode();
