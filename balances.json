@@ -1,19 +1,20 @@
 {
   "1151731529953853482": {
-    "money": 1547,
+    "money": 2047,
     "lastWork": 1753602737024,
     "inventory": {},
     "job": null,
     "energy": 90,
     "lastEnergy": 1753602737024,
     "companyId": null,
-    "lastDaily": 0,
+    "lastDaily": 1753646610217,
     "stats": {
       "gamesPlayed": 0,
       "gamesWon": 0,
-      "totalEarned": 1547,
+      "totalEarned": 2047,
       "totalSpent": 0
-    }
+    },
+    "streak": 1
   },
   "693528568612782201": {
     "money": 99999903802,
