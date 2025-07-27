@@ -12,6 +12,18 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### Owner Panel "Make Admin" Feature Implementation (July 27, 2025)
+- Added "Make Admin" button to Owner panel for promoting users to Administrator role
+- Created secure API endpoint (/api/admin/make-admin) with owner-only permissions
+- Integrated with existing hierarchy system to properly promote users to level 75 (Administrator)
+- Enhanced user interface to show "Make Admin" button only for non-admin users
+- Added confirmation dialogs and success/error feedback for admin promotions
+- Owner can now promote any regular user to Administrator role through web interface
+- Promoted users gain access to admin panel (password: "Gumball") and hierarchy management
+- System prevents duplicate promotions and validates user permissions before promotion
+- All admin promotions logged to console with timestamp and reason tracking
+- Enhanced blacklist display to show current blacklist status in user management interface
+
 ### Bidirectional GitHub Data Sync Implementation (July 27, 2025)
 - Enhanced GitHub sync system to automatically save user data changes back to repository
 - Implemented automatic user data persistence to balances.json in GitHub repository
