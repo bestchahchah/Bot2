@@ -12,6 +12,16 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### Company Promotion Fix & Profile Position Correction (July 27, 2025)
+- Fixed company "Promote" button that wasn't responding by adding proper button handler
+- Created interactive promotion guide showing available positions and command usage
+- Corrected profile command to show accurate "Your Position" in company (CEO for owners, proper job titles for employees)
+- Added proper position hierarchy display in profile: CEO > Manager > Supervisor > Senior Employee > Employee > Intern
+- Fixed company promotion button to display helpful instructions instead of failing silently
+- Enhanced button handler to provide clear guidance on promotion command usage with examples
+- Profile now correctly identifies company owners as "CEO" instead of showing generic employee status
+- All company management features now work properly with improved error handling and user feedback
+
 ### Comprehensive Animated Achievement System & Enhanced Admin Panel (July 27, 2025)
 - Expanded animated achievement popup system to work commands and gambling games (slots, coinflip)
 - Created dynamic achievement levels (1-5) based on earnings, multipliers, and special events
