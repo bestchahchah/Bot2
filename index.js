@@ -455,9 +455,16 @@ client.on('messageCreate', async (message) => {
     }
 
     // Check if user is blacklisted
-    const user = database.users.get(message.author.id);
-    if (user && user.blacklisted) {
-        return message.reply('🚫 You are blacklisted and cannot use bot commands. Contact an administrator if you believe this is an error.');
+    if (database.blacklist && database.blacklist.has(message.author.id)) {
+        const blacklistData = database.blacklist.get(message.author.id);
+        return message.reply({
+            embeds: [{
+                color: 0xff0000,
+                title: '🚫 Access Denied',
+                description: `You are blacklisted and cannot use bot commands.\n**Reason:** ${blacklistData.reason}`,
+                footer: { text: 'Contact an administrator if you believe this is an error.' }
+            }]
+        });
     }
 
     const args = message.content.slice(config.prefix.length).trim().split(/ +/);
@@ -1263,9 +1270,16 @@ async function executeCommandManagement(script) {
                 });
                 
                 // Reload commands
+                const oldCommandCount = client.commands.size;
                 client.commands.clear();
                 loadCommands();
-                return 'Commands reloaded successfully! Use "list" to see all available commands.';
+                const newCommandCount = client.commands.size;
+                
+                // Track reload in command changelog
+                const commandChangelog = require('./utils/commandChangelog');
+                commandChangelog.addChange('reload', 'all_commands', `Reloaded all commands: ${oldCommandCount} → ${newCommandCount}`, '1'); // Admin user ID
+                
+                return `Commands reloaded successfully! Loaded ${newCommandCount} commands. Use "list" to see all available commands.`;
             } catch (error) {
                 throw new Error(`Failed to reload commands: ${error.message}`);
             }
