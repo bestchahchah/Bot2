@@ -12,6 +12,19 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### Bidirectional GitHub Data Sync Implementation (July 27, 2025)
+- Enhanced GitHub sync system to automatically save user data changes back to repository
+- Implemented automatic user data persistence to balances.json in GitHub repository
+- Added scheduled sync system that batches user data changes to avoid API rate limits
+- Created bidirectional data flow: imports from GitHub on startup, exports on data changes
+- Updated database operations to trigger GitHub sync for user balance, inventory, and company changes
+- User data now automatically syncs to GitHub 30 seconds after any balance/stats/inventory modifications
+- Company data changes also automatically pushed to companies.json in repository  
+- Fixed duplicate -daily command issue by updating screenshot monitor to ignore bot commands
+- Enhanced screenshot monitoring trigger words to focus on genuine issues vs normal bot usage
+- All user progress (balances, daily streaks, work history, shop purchases) now preserved in GitHub
+- Bot maintains complete data integrity between local storage and GitHub repository backup
+
 ### Console & Command Management System (July 27, 2025)
 - Added comprehensive Console/Output Panel to admin interface for executing custom scripts
 - Created multi-type script execution system supporting JavaScript, Database, Bot Command, Command Management, and System types
