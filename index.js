@@ -218,20 +218,7 @@ app.get('/admin/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'admin', 'login.html'));
 });
 
-// Admin panel for administrators (Gumball password)
-app.get('/admin/admin-panel', (req, res) => {
-    console.log('Admin panel access attempt');
-    
-    // Check for admin token
-    const authToken = req.query.token || req.headers.authorization?.substring(7);
-    if (authToken === 'gumball-admin-authenticated') {
-        console.log('Serving admin panel to administrator');
-        res.sendFile(path.join(__dirname, 'admin', 'admin-panel.html'));
-    } else {
-        console.log('Not authenticated as admin, redirecting to login');
-        res.redirect('/admin/login');
-    }
-});
+// Removed separate admin panel - admins now get full access to main panel
 
 // Admin panel main page (requires password authentication)
 app.get('/admin', (req, res) => {
@@ -274,7 +261,7 @@ function requireAuth(req, res, next) {
 app.post('/api/admin/login', (req, res) => {
     const { password } = req.body;
     
-    if (password === 'Gummy') {
+    if (password === 'AadenLandaverdeSom') {
         res.json({ 
             success: true, 
             token: 'gummy-owner-authenticated',
@@ -663,8 +650,9 @@ app.post('/api/admin/users/:userId/give-money', requireAuth, logAdminActivity('e
 
     // API endpoints for admin activity tracking
     app.get('/api/admin/activities', requireAuth, logAdminActivity('activity_log_view'), (req, res) => {
-        if (req.userRole !== 'owner') {
-            return res.status(403).json({ error: 'Access denied - Owner only' });
+        // Allow both owner and admin access
+        if (req.userRole !== 'owner' && req.userRole !== 'admin') {
+            return res.status(403).json({ error: 'Access denied - Admin privileges required' });
         }
 
         const limit = parseInt(req.query.limit) || 100;
@@ -678,8 +666,9 @@ app.post('/api/admin/users/:userId/give-money', requireAuth, logAdminActivity('e
     });
 
     app.get('/api/admin/activities/export', requireAuth, logAdminActivity('activity_log_export'), (req, res) => {
-        if (req.userRole !== 'owner') {
-            return res.status(403).json({ error: 'Access denied - Owner only' });
+        // Allow both owner and admin access
+        if (req.userRole !== 'owner' && req.userRole !== 'admin') {
+            return res.status(403).json({ error: 'Access denied - Admin privileges required' });
         }
 
         const format = req.query.format || 'json';
@@ -693,8 +682,9 @@ app.post('/api/admin/users/:userId/give-money', requireAuth, logAdminActivity('e
     });
 
     app.delete('/api/admin/activities', requireAuth, logAdminActivity('activity_log_clear'), (req, res) => {
-        if (req.userRole !== 'owner') {
-            return res.status(403).json({ error: 'Access denied - Owner only' });
+        // Allow both owner and admin access
+        if (req.userRole !== 'owner' && req.userRole !== 'admin') {
+            return res.status(403).json({ error: 'Access denied - Admin privileges required' });
         }
 
         const olderThanDays = req.body.olderThanDays || null;
@@ -1145,7 +1135,7 @@ app.post('/api/admin/users/:userId/give-money', requireAuth, logAdminActivity('e
                 return res.status(400).json({ success: false, message: 'Missing userId' });
             }
 
-            // Only owners can promote users to admin
+            // Only owners can promote users to admin (this stays owner-only for security)
             if (req.userRole !== 'owner') {
                 return res.status(403).json({ success: false, message: 'Insufficient permissions. Only owners can promote users to admin.' });
             }
@@ -1205,9 +1195,9 @@ app.post('/api/admin/users/:userId/give-money', requireAuth, logAdminActivity('e
                 return res.status(400).json({ success: false, message: 'Missing userId or action' });
             }
 
-            // Only owners can blacklist users
-            if (req.userRole !== 'owner') {
-                return res.status(403).json({ success: false, message: 'Insufficient permissions. Only owners can manage blacklist.' });
+            // Allow both owner and admin access for blacklist management
+            if (req.userRole !== 'owner' && req.userRole !== 'admin') {
+                return res.status(403).json({ success: false, message: 'Insufficient permissions. Admin privileges required.' });
             }
 
             const user = database.users.get(userId);
