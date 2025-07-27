@@ -538,25 +538,7 @@ client.on('error', async (error) => {
 });
 }
 
-// Additional admin API endpoints that require Discord client
-app.get('/api/admin/bot-status', requireAuth, (req, res) => {
-    try {
-        const isOnline = client && client.readyAt;
-        const uptime = isOnline ? formatUptime(Date.now() - client.readyAt.getTime()) : 'Offline';
-        const botTag = isOnline ? client.user.tag : 'Unknown';
-        const commandsLoaded = client && client.commands ? client.commands.size : 0;
-
-        res.json({
-            isOnline,
-            uptime,
-            botTag,
-            commandsLoaded
-        });
-    } catch (error) {
-        console.error('Error fetching bot status:', error);
-        res.status(500).json({ message: 'Failed to fetch bot status' });
-    }
-});
+// Remove duplicate bot status endpoint - using the enhanced one below
 
 // API endpoint to give money to user
 app.post('/api/admin/users/:userId/give-money', requireAuth, logAdminActivity('economy_give_money'), (req, res) => {
@@ -816,7 +798,7 @@ app.post('/api/admin/users/:userId/give-money', requireAuth, logAdminActivity('e
     // Bot control endpoints
     app.get('/api/admin/bot-status', requireAuth, (req, res) => {
         try {
-            // Enhanced bot status detection
+            // Use consistent client reference (discordClient)
             const clientExists = discordClient && discordClient.user;
             const hasReadyTimestamp = discordClient && discordClient.readyAt !== null;
             const isClientReady = discordClient && discordClient.isReady && discordClient.isReady();
@@ -827,15 +809,15 @@ app.post('/api/admin/users/:userId/give-money', requireAuth, logAdminActivity('e
             
             const uptime = discordClient && discordClient.readyAt && isOnline ? 
                 formatUptime(Date.now() - discordClient.readyAt.getTime()) : 'Offline';
-            const commandsLoaded = client && client.commands ? client.commands.size : 0;
-            const currentMode = configManager.getBotMode();
-            const modeInfo = configManager.getModeInfo(currentMode);
+            const commandsLoaded = discordClient && discordClient.commands ? discordClient.commands.size : 0;
+            const currentMode = configManager ? configManager.getBotMode() : 'economy';
+            const modeInfo = configManager ? configManager.getModeInfo(currentMode) : { name: 'Economy', description: 'Default mode' };
             
             console.log(`[BotStatus] Check: clientExists=${clientExists}, hasReady=${hasReadyTimestamp}, isReady=${isClientReady}, notStopped=${notStopped}, final=${isOnline}`);
             
             res.json({
                 online: isOnline,
-                isOnline: isOnline, // Fixed: return boolean instead of timestamp
+                isOnline: isOnline ? discordClient.readyAt.toISOString() : null, // Return timestamp when online, null when offline
                 uptime,
                 lastRestart: botStartTime || new Date().toISOString(),
                 commandsLoaded,
@@ -849,7 +831,7 @@ app.post('/api/admin/users/:userId/give-money', requireAuth, logAdminActivity('e
             console.error('Error fetching bot status:', error);
             res.status(500).json({ 
                 online: false,
-                isOnline: false,
+                isOnline: null,
                 uptime: 'Error',
                 lastRestart: 'Unknown',
                 commandsLoaded: 0,
