@@ -261,7 +261,7 @@ function requireAuth(req, res, next) {
 app.post('/api/admin/login', (req, res) => {
     const { password } = req.body;
     
-    if (password === 'AadenLandaverdeSom') {
+    if (password === process.env.OWNER_PASSWORD) {
         res.json({ 
             success: true, 
             token: 'gummy-owner-authenticated',
