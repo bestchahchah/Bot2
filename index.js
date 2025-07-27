@@ -331,18 +331,23 @@ function formatUptime(ms) {
 client.commands = new Collection();
 client.cooldowns = new Collection();
 
-// Load commands
-const commandsPath = path.join(__dirname, 'commands');
-const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+// Load commands function
+function loadCommands() {
+    const commandsPath = path.join(__dirname, 'commands');
+    const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
-for (const file of commandFiles) {
-    const filePath = path.join(commandsPath, file);
-    const command = require(filePath);
-    if (command.name) {
-        client.commands.set(command.name, command);
-        logger.log(`Loaded command: ${command.name}`);
+    for (const file of commandFiles) {
+        const filePath = path.join(commandsPath, file);
+        const command = require(filePath);
+        if (command.name) {
+            client.commands.set(command.name, command);
+            logger.log(`Loaded command: ${command.name}`);
+        }
     }
 }
+
+// Load commands initially
+loadCommands();
 
 // Function to setup Discord events
 function setupDiscordEvents() {
