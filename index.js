@@ -311,6 +311,9 @@ function createDiscordClient() {
 let client = createDiscordClient();
 discordClient = client;
 
+// Initialize bot mode
+global.botMode = 'economy';
+
 // Helper function to format uptime
 function formatUptime(ms) {
     const seconds = Math.floor(ms / 1000);
@@ -417,6 +420,34 @@ client.once('ready', async () => {
 // Message event handler
 client.on('messageCreate', async (message) => {
     if (message.author.bot || !message.content.startsWith(config.prefix)) return;
+
+    // Check bot mode restrictions
+    const botMode = global.botMode || 'economy';
+    const userIsOwner = message.author.id === config.ownerId;
+    const userIsAdmin = client.hierarchy && client.hierarchy.hasPermission(message.author.id, 'admin_commands');
+    
+    // Mode-specific restrictions
+    if (botMode === 'maintenance' && !userIsOwner && !userIsAdmin) {
+        return message.reply({
+            embeds: [{
+                color: 0xffc107,
+                title: '🔧 Maintenance Mode',
+                description: 'The bot is currently in maintenance mode. Only administrators can use commands during this time.',
+                footer: { text: 'Please try again later' }
+            }]
+        });
+    }
+    
+    if (botMode === 'admin' && !userIsOwner && !userIsAdmin) {
+        return message.reply({
+            embeds: [{
+                color: 0xdc3545,
+                title: '🛠️ Admin Mode',
+                description: 'The bot is currently in admin mode with restricted access. Only administrators can use commands.',
+                footer: { text: 'Contact an administrator if you need assistance' }
+            }]
+        });
+    }
 
     // Check if user is blacklisted
     const user = database.users.get(message.author.id);
@@ -615,6 +646,70 @@ app.post('/api/admin/users/:userId/give-money', requireAuth, (req, res) => {
         }
     });
     
+    // API endpoint for bot mode switching
+    app.post('/api/admin/change-bot-mode', requireAuth, async (req, res) => {
+        try {
+            const { mode } = req.body;
+            
+            if (!['economy', 'admin', 'maintenance', 'ai'].includes(mode)) {
+                return res.status(400).json({ 
+                    success: false, 
+                    error: 'Invalid mode. Must be economy, admin, maintenance, or ai' 
+                });
+            }
+
+            // Store current bot mode
+            global.botMode = mode;
+            
+            // Update bot status and activity based on mode
+            if (client && client.user) {
+                const modeConfig = {
+                    economy: {
+                        status: 'online',
+                        activity: { name: '💰 Economy Mode | -help', type: 0 }
+                    },
+                    admin: {
+                        status: 'dnd',
+                        activity: { name: '🛠️ Admin Mode | Restricted Access', type: 0 }
+                    },
+                    maintenance: {
+                        status: 'idle',
+                        activity: { name: '🔧 Maintenance Mode | Limited Functions', type: 0 }
+                    },
+                    ai: {
+                        status: 'online',
+                        activity: { name: '🧠 AI Assistant Mode | Smart Commands', type: 0 }
+                    }
+                };
+
+                const config = modeConfig[mode];
+                await client.user.setStatus(config.status);
+                await client.user.setActivity(config.activity.name, { type: config.activity.type });
+                
+                // Log the mode change
+                await logger.startup(`Bot mode changed to: ${mode.toUpperCase()}`);
+                
+                // Add changelog entry
+                if (global.changelogManager) {
+                    global.changelogManager.addChange('update', `Bot mode switched to ${mode}`, `Admin changed bot operating mode to ${mode} with updated status and activity`);
+                }
+            }
+
+            res.json({ 
+                success: true, 
+                mode: mode,
+                message: `Bot successfully switched to ${mode} mode` 
+            });
+            
+        } catch (error) {
+            console.error('Error changing bot mode:', error);
+            res.status(500).json({ 
+                success: false, 
+                error: 'Failed to change bot mode: ' + error.message 
+            });
+        }
+    });
+
     // API endpoint for error management
     app.get('/api/admin/errors', requireAuth, (req, res) => {
         try {
