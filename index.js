@@ -839,6 +839,46 @@ app.post('/api/admin/users/:userId/give-money', requireAuth, (req, res) => {
         }
     });
 
+    // Make user admin endpoint
+    app.post('/api/admin/make-admin', requireAuth, (req, res) => {
+        try {
+            const { userId, reason } = req.body;
+            
+            if (!userId) {
+                return res.status(400).json({ success: false, message: 'Missing userId' });
+            }
+
+            // Only owners can promote users to admin
+            if (req.userRole !== 'owner') {
+                return res.status(403).json({ success: false, message: 'Insufficient permissions. Only owners can promote users to admin.' });
+            }
+
+            // Get hierarchy system
+            const hierarchy = require('./utils/hierarchy');
+            
+            // Check if user is already an admin or owner
+            const currentRole = hierarchy.getUserRole(userId);
+            if (currentRole.level >= 75) { // Already admin level or higher
+                return res.status(400).json({ success: false, message: 'User is already an Administrator or Owner' });
+            }
+
+            // Promote user to Administrator (level 75)
+            hierarchy.setUserRole(userId, 'administrator');
+            
+            console.log(`[ADMIN] User ${userId} promoted to Administrator by Owner - Reason: ${reason || 'Admin panel promotion'}`);
+            
+            res.json({ 
+                success: true, 
+                message: `User promoted to Administrator successfully`,
+                newRole: 'Administrator',
+                level: 75
+            });
+        } catch (error) {
+            console.error('Error promoting user to admin:', error);
+            res.status(500).json({ success: false, message: 'Failed to promote user to admin' });
+        }
+    });
+
     // Blacklist management endpoints
     app.get('/api/admin/blacklist', requireAuth, (req, res) => {
         try {
