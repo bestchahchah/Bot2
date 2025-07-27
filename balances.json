@@ -1,0 +1,124 @@
+{
+  "1151731529953853482": {
+    "money": 1500,
+    "lastWork": 0,
+    "inventory": {},
+    "lastDaily": 1753601410182,
+    "stats": {
+      "gamesPlayed": 0,
+      "gamesWon": 0,
+      "totalEarned": 500,
+      "totalSpent": 0
+    },
+    "streak": 1
+  },
+  "693528568612782201": {
+    "money": 99999900000,
+    "lastWork": 0,
+    "inventory": {},
+    "job": null,
+    "energy": 100,
+    "lastEnergy": 0,
+    "companyId": "1753202975979919",
+    "lastDaily": 0,
+    "stats": {
+      "gamesPlayed": 0,
+      "gamesWon": 0,
+      "totalEarned": 99999900000,
+      "totalSpent": 0
+    }
+  },
+  "706530416110338181": {
+    "money": 200,
+    "lastWork": 0,
+    "inventory": {},
+    "job": null,
+    "energy": 100,
+    "lastEnergy": 0,
+    "companyId": null,
+    "lastDaily": 0,
+    "stats": {
+      "gamesPlayed": 0,
+      "gamesWon": 0,
+      "totalEarned": 200,
+      "totalSpent": 0
+    }
+  },
+  "1172954028569796639": {
+    "money": 300600,
+    "lastWork": 1753203229140,
+    "inventory": {},
+    "job": "Programmer",
+    "energy": 81,
+    "lastEnergy": 1753203911762,
+    "companyId": "1753203205647360",
+    "lastDaily": 0,
+    "stats": {
+      "gamesPlayed": 0,
+      "gamesWon": 0,
+      "totalEarned": 300600,
+      "totalSpent": 0
+    }
+  },
+  "1338750779531722762": {
+    "money": 500000,
+    "lastWork": 0,
+    "inventory": {},
+    "job": null,
+    "energy": 100,
+    "lastEnergy": 0,
+    "companyId": "1753203205647360",
+    "lastDaily": 0,
+    "stats": {
+      "gamesPlayed": 0,
+      "gamesWon": 0,
+      "totalEarned": 500000,
+      "totalSpent": 0
+    }
+  },
+  "894667786788433991": {
+    "money": 300,
+    "lastWork": 1753202131768,
+    "inventory": {},
+    "job": "Programmer",
+    "energy": 90,
+    "lastEnergy": 1753202122893,
+    "companyId": null,
+    "lastDaily": 0,
+    "stats": {
+      "gamesPlayed": 0,
+      "gamesWon": 0,
+      "totalEarned": 300,
+      "totalSpent": 0
+    }
+  },
+  "1357028863481221151": {
+    "money": 1000,
+    "lastWork": 0,
+    "inventory": {},
+    "job": null,
+    "energy": 100,
+    "lastEnergy": 1753203507357,
+    "companyId": "1753203205647360",
+    "lastDaily": 0,
+    "stats": {
+      "gamesPlayed": 0,
+      "gamesWon": 0,
+      "totalEarned": 1000,
+      "totalSpent": 0
+    }
+  },
+  "1228876606202839061": {
+    "money": 1500,
+    "lastWork": 0,
+    "inventory": {},
+    "lastDaily": 1753601423121,
+    "stats": {
+      "gamesPlayed": 0,
+      "gamesWon": 0,
+      "totalEarned": 500,
+      "totalSpent": 0
+    },
+    "streak": 1
+  }
+}
