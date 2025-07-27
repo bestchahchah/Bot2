@@ -205,6 +205,12 @@ All notable changes to this project will be documented in this file.
         }
     }
 
+    // Add manual entry for testing
+    addManualEntry(type, description, details = null) {
+        this.addChange(type, description, details);
+        this.saveChanges(); // Save immediately
+    }
+
     // Cleanup on shutdown
     destroy() {
         if (this.autoSaveInterval) {
