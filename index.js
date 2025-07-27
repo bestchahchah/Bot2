@@ -3,6 +3,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const config = require('./config');
+const aiConsole = require('./server/aiConsole');
 const database = require('./utils/database');
 const github = require('./utils/github');
 const logger = require('./utils/logger');
@@ -146,6 +147,27 @@ app.get('/api/admin/companies', requireAuth, (req, res) => {
     } catch (error) {
         console.error('Error fetching companies:', error);
         res.status(500).json({ message: 'Failed to fetch companies' });
+    }
+});
+
+// AI Console API endpoint
+app.post('/api/admin/ai-console', requireAuth, async (req, res) => {
+    try {
+        const { command } = req.body;
+        
+        if (!command) {
+            return res.status(400).json({ error: 'Command is required' });
+        }
+
+        const result = await aiConsole.processCommand(command, req.userRole);
+        res.json(result);
+    } catch (error) {
+        logger.error('AI Console error:', error);
+        res.status(500).json({ 
+            success: false,
+            output: `Console Error: ${error.message}`,
+            type: 'error'
+        });
     }
 });
 
