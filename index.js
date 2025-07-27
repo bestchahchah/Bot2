@@ -171,7 +171,7 @@ app.get('/api/admin/companies', requireAuth, (req, res) => {
 });
 
 // AI Console API endpoint
-app.post('/api/admin/ai-console', requireAuth, async (req, res) => {
+app.post('/api/admin/ai-console', requireOwner, async (req, res) => {
     try {
         const { command } = req.body;
         
@@ -257,6 +257,23 @@ function requireAuth(req, res, next) {
     }
 }
 
+// Owner-only authentication middleware for critical functions
+function requireOwner(req, res, next) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: 'Authentication required' });
+    }
+    
+    const token = authHeader.substring(7);
+    if (token === 'gummy-owner-authenticated') {
+        req.userRole = 'owner';
+        req.userLevel = 100;
+        next();
+    } else {
+        return res.status(403).json({ message: 'Owner access required for this operation' });
+    }
+}
+
 // Login endpoint with role-based authentication
 app.post('/api/admin/login', (req, res) => {
     const { password } = req.body;
@@ -268,7 +285,7 @@ app.post('/api/admin/login', (req, res) => {
             role: 'owner',
             message: 'Owner login successful'
         });
-    } else if (password === 'Gumball') {
+    } else if (password === process.env.ADMIN_PASSWORD) {
         res.json({ 
             success: true, 
             token: 'gumball-admin-authenticated',
@@ -705,8 +722,8 @@ app.post('/api/admin/users/:userId/give-money', requireAuth, logAdminActivity('e
         }
     });
     
-    // API endpoint for bot mode switching
-    app.post('/api/admin/change-bot-mode', requireAuth, async (req, res) => {
+    // API endpoint for bot mode switching (Owner only)
+    app.post('/api/admin/change-bot-mode', requireOwner, async (req, res) => {
         try {
             const { mode } = req.body;
             
@@ -843,7 +860,7 @@ app.post('/api/admin/users/:userId/give-money', requireAuth, logAdminActivity('e
     });
 
     // Bot status change endpoint
-    app.post('/api/admin/bot-status-change', requireAuth, async (req, res) => {
+    app.post('/api/admin/bot-status-change', requireOwner, async (req, res) => {
         try {
             const { status, activity, activityType } = req.body;
             
@@ -882,7 +899,7 @@ app.post('/api/admin/users/:userId/give-money', requireAuth, logAdminActivity('e
         }
     });
 
-    app.post('/api/admin/bot-restart', requireAuth, async (req, res) => {
+    app.post('/api/admin/bot-restart', requireOwner, async (req, res) => {
         try {
             console.log('Bot restart initiated via admin panel');
             
@@ -925,8 +942,8 @@ app.post('/api/admin/users/:userId/give-money', requireAuth, logAdminActivity('e
         }
     });
 
-    // Change bot mode endpoint with persistence
-    app.post('/api/admin/change-bot-mode', requireAuth, async (req, res) => {
+    // Change bot mode endpoint with persistence (Owner only)
+    app.post('/api/admin/change-bot-mode', requireOwner, async (req, res) => {
         try {
             const { mode } = req.body;
             
@@ -965,8 +982,8 @@ app.post('/api/admin/users/:userId/give-money', requireAuth, logAdminActivity('e
         }
     });
 
-    // Bot stop endpoint
-    app.post('/api/admin/bot-stop', requireAuth, async (req, res) => {
+    // Bot stop endpoint (Owner only)
+    app.post('/api/admin/bot-stop', requireOwner, async (req, res) => {
         try {
             console.log(`[ADMIN] Bot stop requested by ${req.userRole}`);
             
@@ -984,8 +1001,8 @@ app.post('/api/admin/users/:userId/give-money', requireAuth, logAdminActivity('e
         }
     });
 
-    // Bot start endpoint
-    app.post('/api/admin/bot-start', requireAuth, async (req, res) => {
+    // Bot start endpoint (Owner only)
+    app.post('/api/admin/bot-start', requireOwner, async (req, res) => {
         try {
             console.log(`[ADMIN] Bot start requested by ${req.userRole}`);
             
@@ -1027,7 +1044,7 @@ app.post('/api/admin/users/:userId/give-money', requireAuth, logAdminActivity('e
         }
     });
 
-    app.post('/api/admin/bot-stop', requireAuth, async (req, res) => {
+    app.post('/api/admin/bot-stop', requireOwner, async (req, res) => {
         try {
             console.log('Bot stop initiated via admin panel');
             botStopped = true;
@@ -1046,7 +1063,7 @@ app.post('/api/admin/users/:userId/give-money', requireAuth, logAdminActivity('e
         }
     });
 
-    app.post('/api/admin/bot-start', requireAuth, async (req, res) => {
+    app.post('/api/admin/bot-start', requireOwner, async (req, res) => {
         try {
             if (discordClient && discordClient.readyAt && !botStopped) {
                 return res.json({ success: false, message: 'Bot is already running' });
@@ -1109,7 +1126,7 @@ app.post('/api/admin/users/:userId/give-money', requireAuth, logAdminActivity('e
     });
 
     // Make user admin endpoint
-    app.post('/api/admin/make-admin', requireAuth, (req, res) => {
+    app.post('/api/admin/make-admin', requireOwner, (req, res) => {
         try {
             const { userId, reason } = req.body;
             
@@ -1217,8 +1234,8 @@ app.post('/api/admin/users/:userId/give-money', requireAuth, logAdminActivity('e
         }
     });
 
-    // Execute script endpoint for console
-    app.post('/api/admin/execute-script', requireAuth, async (req, res) => {
+    // Execute script endpoint for console (Owner only)
+    app.post('/api/admin/execute-script', requireOwner, async (req, res) => {
         try {
             const { type, script } = req.body;
             
