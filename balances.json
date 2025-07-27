@@ -20,8 +20,8 @@
     "lastWork": 1753603564293,
     "inventory": {},
     "job": null,
-    "energy": 90,
-    "lastEnergy": 1753603564293,
+    "energy": 100,
+    "lastEnergy": 1753635270869,
     "companyId": "1753202975979919",
     "lastDaily": 0,
     "stats": {
@@ -52,8 +52,8 @@
     "lastWork": 1753203229140,
     "inventory": {},
     "job": "Programmer",
-    "energy": 81,
-    "lastEnergy": 1753203911762,
+    "energy": 100,
+    "lastEnergy": 1753635270157,
     "companyId": "1753203205647360",
     "lastDaily": 0,
     "stats": {
