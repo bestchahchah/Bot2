@@ -1476,21 +1476,7 @@ Example: create:mycustom`;
     }
 }
 
-// Function to start Discord bot with enhanced reliability
-async function startDiscordBot() {
-    if (botStopped) return;
-    
-    try {
-        if (!discordClient || discordClient.isReady() === false) {
-            await discordClient.login(config.token);
-        }
-    } catch (error) {
-        await logger.error('Failed to login to Discord:', error);
-        if (!botStopped) {
-            setTimeout(() => startDiscordBot(), 5000); // Retry after 5 seconds
-        }
-    }
-}
+// Discord bot startup removed - now only controllable through admin panel
 
 // Start HTTP server with 24/7 reliability features
 const server = app.listen(PORT, '0.0.0.0', () => {
@@ -1508,18 +1494,7 @@ setInterval(() => {
             res.on('end', () => {
                 try {
                     const response = JSON.parse(data);
-                    // Auto-reconnect if bot goes offline
-                    if (!response.botOnline && discordClient && !discordClient.readyAt && !botStopped) {
-                        console.log('🔄 Bot offline detected, attempting auto-reconnection...');
-                        setTimeout(async () => {
-                            try {
-                                await discordClient.login(config.token);
-                                console.log('✅ Bot auto-reconnected successfully');
-                            } catch (error) {
-                                console.log('❌ Auto-reconnection failed:', error.message);
-                            }
-                        }, 5000);
-                    }
+                    // Auto-reconnection disabled - bot now controlled manually through admin panel
                 } catch (error) {
                     // Ignore JSON parsing errors
                 }
@@ -1553,7 +1528,5 @@ process.on('SIGTERM', () => {
     });
 });
 
-// Start the bot initially
-startDiscordBot();
-
 console.log('🚀 Discord Economy Bot initialized with 24/7 reliability features');
+console.log('📱 Bot is now controlled exclusively through the admin panel - use the Start Bot button to begin');
