@@ -20,6 +20,11 @@ const { setupDiscordAuth } = require('./utils/discordAuth');
 const app = express();
 app.use(express.json());
 app.use(express.static('admin')); // Serve admin panel files
+
+// Serve loading page
+app.get('/admin/loading', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin', 'loading.html'));
+});
 const PORT = process.env.PORT || 5000;
 
 // Remove Discord OAuth setup - using simple password authentication
