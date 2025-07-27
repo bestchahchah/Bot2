@@ -131,6 +131,24 @@ app.get('/api/admin/shop-items', requireAuth, (req, res) => {
     }
 });
 
+// API endpoint to get companies data for analytics
+app.get('/api/admin/companies', requireAuth, (req, res) => {
+    try {
+        if (!database.companies) {
+            return res.json([]);
+        }
+        const companies = Array.from(database.companies.entries()).map(([id, company]) => ({
+            id,
+            ...company,
+            memberCount: company.members ? company.members.length : 0
+        }));
+        res.json(companies);
+    } catch (error) {
+        console.error('Error fetching companies:', error);
+        res.status(500).json({ message: 'Failed to fetch companies' });
+    }
+});
+
 // Health check endpoint
 app.get('/', (req, res) => {
     res.status(200).json({
