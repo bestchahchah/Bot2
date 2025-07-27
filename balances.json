@@ -67,7 +67,7 @@
     "money": 500000,
     "lastWork": 0,
     "inventory": {},
-    "job": null,
+    "job": "Manager",
     "energy": 100,
     "lastEnergy": 0,
     "companyId": "1753203205647360",
