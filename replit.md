@@ -12,6 +12,18 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### Personalized Owner Greeting & Professional Loading Screen (July 27, 2025)
+- Added personalized "Hello Aaden!" greeting in admin panel header for owner account only
+- Enhanced admin panel header with smooth slide-in animation for owner greeting
+- Created beautiful loading screen with animated particles background between login and admin panel
+- Built multi-step progress indicator with checkmarks and animated progress bar
+- Added professional shield icon with pulsing animation and success message
+- Improved development workflow to avoid unnecessary Discord bot restarts for website-only changes
+- Owner panel now displays personalized welcome message in top-right corner with professional styling
+- Loading screen features step-by-step loading process with visual feedback and automatic redirection
+- Greeting appears only for owner role, maintaining role-based interface customization
+- Optimized update process to distinguish between bot code changes and website modifications
+
 ### Adaptive Color Scheme System Implementation (July 27, 2025)
 - Created comprehensive theme customization system with 8 unique color schemes
 - Added theme command (-theme) with interactive buttons and select menus for easy customization
