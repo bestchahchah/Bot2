@@ -16,20 +16,21 @@
     }
   },
   "693528568612782201": {
-    "money": 99999900000,
+    "money": 99999900500,
     "lastWork": 0,
     "inventory": {},
     "job": null,
     "energy": 100,
     "lastEnergy": 0,
     "companyId": "1753202975979919",
-    "lastDaily": 0,
+    "lastDaily": 1753602221825,
     "stats": {
       "gamesPlayed": 0,
       "gamesWon": 0,
-      "totalEarned": 99999900000,
+      "totalEarned": 99999900500,
       "totalSpent": 0
-    }
+    },
+    "streak": 1
   },
   "706530416110338181": {
     "money": 200,
