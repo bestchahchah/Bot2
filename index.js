@@ -11,7 +11,8 @@ const ButtonHandler = require('./utils/buttonHandler');
 const ScreenshotMonitor = require('./utils/screenshot');
 const hierarchy = require('./utils/hierarchy');
 const changelogManager = require('./utils/changelogManager');
-const configManager = require('./utils/configManager');
+// ConfigManager will be initialized after database is ready
+let configManager;
 const githubSync = require('./utils/githubSync');
 const { setupDiscordAuth } = require('./utils/discordAuth');
 
@@ -360,6 +361,17 @@ client.once('ready', async () => {
     // Initialize logger with Discord client
     logger.setClient(client, config.ownerId);
     
+    // Initialize database first
+    try {
+        await database.init();
+        await logger.startup('Database initialized successfully');
+    } catch (error) {
+        await logger.error('Failed to initialize database:', error);
+    }
+    
+    // Initialize configManager with database support
+    configManager = require('./utils/configManager');
+    
     // Load and apply saved bot mode on startup
     const savedMode = configManager.getBotMode();
     const discordStatus = configManager.getStatusForDiscord();
@@ -370,14 +382,6 @@ client.once('ready', async () => {
     });
     
     await logger.startup(`${client.user.tag} is online and ready! Mode: ${savedMode}`);
-    
-    // Initialize database
-    try {
-        await database.init();
-        await logger.startup('Database initialized successfully');
-    } catch (error) {
-        await logger.error('Failed to initialize database:', error);
-    }
     
     // Initialize interactive button handler
     new ButtonHandler(client);
@@ -780,7 +784,7 @@ app.post('/api/admin/users/:userId/give-money', requireAuth, (req, res) => {
             
             res.json({
                 online: isOnline,
-                isOnline,
+                isOnline: isOnline, // Fixed: return boolean instead of timestamp
                 uptime,
                 lastRestart: botStartTime || new Date().toISOString(),
                 commandsLoaded,
