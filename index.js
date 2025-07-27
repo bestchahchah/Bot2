@@ -761,12 +761,22 @@ app.post('/api/admin/users/:userId/give-money', requireAuth, (req, res) => {
     // Bot control endpoints
     app.get('/api/admin/bot-status', requireAuth, (req, res) => {
         try {
-            const isOnline = discordClient && discordClient.readyAt !== null && !botStopped && discordClient.isReady();
+            // Enhanced bot status detection
+            const clientExists = discordClient && discordClient.user;
+            const hasReadyTimestamp = discordClient && discordClient.readyAt !== null;
+            const isClientReady = discordClient && discordClient.isReady && discordClient.isReady();
+            const notStopped = !botStopped;
+            
+            // Bot is online if client exists, has ready timestamp, is ready, and not manually stopped
+            const isOnline = clientExists && hasReadyTimestamp && isClientReady && notStopped;
+            
             const uptime = discordClient && discordClient.readyAt && isOnline ? 
                 formatUptime(Date.now() - discordClient.readyAt.getTime()) : 'Offline';
             const commandsLoaded = client && client.commands ? client.commands.size : 0;
             const currentMode = configManager.getBotMode();
             const modeInfo = configManager.getModeInfo(currentMode);
+            
+            console.log(`[BotStatus] Check: clientExists=${clientExists}, hasReady=${hasReadyTimestamp}, isReady=${isClientReady}, notStopped=${notStopped}, final=${isOnline}`);
             
             res.json({
                 online: isOnline,
