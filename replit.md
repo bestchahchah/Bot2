@@ -12,6 +12,22 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### Advanced Admin Features: Blacklist System & Command Changelog (July 27, 2025)
+- Created comprehensive blacklist system for administrators to manage problem users
+- Added `-blacklist` command with add, remove, list, and check subcommands
+- Built command changelog system (`-cmdlog`) for tracking all command modifications
+- Integrated blacklist checking into message handler to prevent blacklisted users from using commands
+- Added command tracking in AI console system for automatic documentation
+- Created interactive button handlers for both blacklist and command log features
+- Enhanced admin permissions system with proper hierarchy validation
+- Built command changelog utility that tracks creation, modification, deletion, and reload events
+- Added statistics and user activity tracking for command changes
+- Implemented automatic command reload tracking with before/after command counts
+- Blacklist system prevents users from accessing any bot functionality with customizable reasons
+- Command changelog provides audit trail for all bot command modifications by admins
+- Both systems require Administrator level (75+) or Owner permissions for access
+- Added proper error handling and user feedback for all blacklist and changelog operations
+
 ### Smooth Transition Animations Between Bot Modes (July 27, 2025)
 - Implemented comprehensive bot mode switching system with 4 distinct operating modes
 - Added smooth CSS animations and transitions for mode changes with visual feedback
