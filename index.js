@@ -137,7 +137,19 @@ app.get('/', (req, res) => {
         status: 'healthy',
         uptime: process.uptime(),
         timestamp: new Date().toISOString(),
-        service: 'Discord Economy Bot'
+        service: 'Discord Economy Bot',
+        botOnline: discordClient && discordClient.readyAt ? true : false,
+        botTag: discordClient && discordClient.user ? discordClient.user.tag : 'Not connected'
+    });
+});
+
+// Keep-alive endpoint for 24/7 uptime
+app.get('/ping', (req, res) => {
+    res.json({ 
+        status: 'alive', 
+        timestamp: Date.now(),
+        botOnline: discordClient && discordClient.readyAt ? true : false,
+        uptime: formatUptime(process.uptime() * 1000)
     });
 });
 
@@ -242,7 +254,16 @@ function createDiscordClient() {
             GatewayIntentBits.GuildMessages,
             GatewayIntentBits.MessageContent,
             GatewayIntentBits.GuildMembers
-        ]
+        ],
+        // Enhanced settings for 24/7 reliability
+        restTimeOffset: 0,
+        restWsBridgeTimeout: 1000,
+        restRequestTimeout: 15000,
+        failIfNotExists: false,
+        allowedMentions: {
+            parse: ['users', 'roles'],
+            repliedUser: true
+        }
     });
 }
 
@@ -1182,7 +1203,7 @@ Example: create:mycustom`;
     }
 }
 
-// Function to start Discord bot
+// Function to start Discord bot with enhanced reliability
 async function startDiscordBot() {
     if (botStopped) return;
     
@@ -1198,5 +1219,68 @@ async function startDiscordBot() {
     }
 }
 
+// Start HTTP server with 24/7 reliability features
+const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`HTTP server running on port ${PORT}`);
+});
+
+// Keep-alive system for 24/7 operation on Replit
+setInterval(() => {
+    const http = require('http');
+    
+    const selfPing = () => {
+        const req = http.get(`http://localhost:${PORT}/ping`, (res) => {
+            let data = '';
+            res.on('data', (chunk) => data += chunk);
+            res.on('end', () => {
+                try {
+                    const response = JSON.parse(data);
+                    // Auto-reconnect if bot goes offline
+                    if (!response.botOnline && discordClient && !discordClient.readyAt && !botStopped) {
+                        console.log('🔄 Bot offline detected, attempting auto-reconnection...');
+                        setTimeout(async () => {
+                            try {
+                                await discordClient.login(config.token);
+                                console.log('✅ Bot auto-reconnected successfully');
+                            } catch (error) {
+                                console.log('❌ Auto-reconnection failed:', error.message);
+                            }
+                        }, 5000);
+                    }
+                } catch (error) {
+                    // Ignore JSON parsing errors
+                }
+            });
+        });
+        req.on('error', () => {}); // Ignore ping errors
+        req.setTimeout(3000, () => req.destroy());
+        req.end();
+    };
+    
+    selfPing();
+}, 240000); // Self-ping every 4 minutes to prevent Replit sleep
+
+// Enhanced error handling for 24/7 stability
+process.on('uncaughtException', (error) => {
+    console.error('⚠️ Uncaught Exception (handled):', error.message);
+    // Don't exit process - keep bot running
+});
+
+process.on('unhandledRejection', (reason) => {
+    console.error('⚠️ Unhandled Rejection (handled):', reason);
+    // Don't exit process - keep bot running
+});
+
+// Graceful shutdown handling
+process.on('SIGTERM', () => {
+    console.log('🛑 SIGTERM received, shutting down gracefully');
+    server.close(() => {
+        if (discordClient) discordClient.destroy();
+        process.exit(0);
+    });
+});
+
 // Start the bot initially
 startDiscordBot();
+
+console.log('🚀 Discord Economy Bot initialized with 24/7 reliability features');
