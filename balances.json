@@ -25,9 +25,9 @@
     "companyId": "1753202975979919",
     "lastDaily": 0,
     "stats": {
-      "gamesPlayed": 1,
-      "gamesWon": 1,
-      "totalEarned": 99999903544,
+      "gamesPlayed": 0,
+      "gamesWon": 0,
+      "totalEarned": 99999902644,
       "totalSpent": 0
     }
   },
@@ -59,7 +59,7 @@
     "stats": {
       "gamesPlayed": 0,
       "gamesWon": 0,
-      "totalEarned": 300600,
+      "totalEarned": 330600,
       "totalSpent": 0
     }
   },
@@ -119,13 +119,12 @@
     "energy": 90,
     "lastEnergy": 1753603588648,
     "companyId": null,
-    "lastDaily": 1753603611985,
+    "lastDaily": 0,
     "stats": {
-      "gamesPlayed": 3,
-      "gamesWon": 2,
-      "totalEarned": 4346,
-      "totalSpent": 500
-    },
-    "streak": 1
+      "gamesPlayed": 0,
+      "gamesWon": 0,
+      "totalEarned": 2746,
+      "totalSpent": 0
+    }
   }
 }
