@@ -1,17 +1,17 @@
 {
   "1151731529953853482": {
-    "money": 1500,
-    "lastWork": 0,
+    "money": 1547,
+    "lastWork": 1753602737024,
     "inventory": {},
     "job": null,
-    "energy": 100,
-    "lastEnergy": 0,
+    "energy": 90,
+    "lastEnergy": 1753602737024,
     "companyId": null,
     "lastDaily": 0,
     "stats": {
       "gamesPlayed": 0,
       "gamesWon": 0,
-      "totalEarned": 1500,
+      "totalEarned": 1547,
       "totalSpent": 0
     }
   },
