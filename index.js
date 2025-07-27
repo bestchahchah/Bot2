@@ -15,6 +15,7 @@ const changelogManager = require('./utils/changelogManager');
 let configManager;
 const githubSync = require('./utils/githubSync');
 const { setupDiscordAuth } = require('./utils/discordAuth');
+const adminActivityLogger = require('./utils/adminActivityLogger');
 
 // Create Express app for health checks and admin panel
 const app = express();
@@ -29,8 +30,20 @@ const PORT = process.env.PORT || 5000;
 
 // Remove Discord OAuth setup - using simple password authentication
 
+// Middleware to log admin activities
+function logAdminActivity(action, details = {}) {
+    return (req, res, next) => {
+        const adminRole = req.userRole || 'unknown';
+        const adminId = adminRole === 'owner' ? 'owner' : 'admin';
+        const ipAddress = req.ip || req.connection.remoteAddress;
+        
+        adminActivityLogger.logActivity(adminRole, adminId, action, details, ipAddress);
+        next();
+    };
+}
+
 // Add user info endpoint for authenticated users
-app.get('/api/admin/user-info', requireAuth, (req, res) => {
+app.get('/api/admin/user-info', requireAuth, logAdminActivity('user_info_access'), (req, res) => {
     if (req.userRole === 'owner') {
         res.json({
             id: config.ownerId,
@@ -559,7 +572,7 @@ app.get('/api/admin/bot-status', requireAuth, (req, res) => {
 });
 
 // API endpoint to give money to user
-app.post('/api/admin/users/:userId/give-money', requireAuth, (req, res) => {
+app.post('/api/admin/users/:userId/give-money', requireAuth, logAdminActivity('economy_give_money'), (req, res) => {
         try {
             const { userId } = req.params;
             const { amount, reason } = req.body;
@@ -648,8 +661,50 @@ app.post('/api/admin/users/:userId/give-money', requireAuth, (req, res) => {
         }
     });
 
+    // API endpoints for admin activity tracking
+    app.get('/api/admin/activities', requireAuth, logAdminActivity('activity_log_view'), (req, res) => {
+        if (req.userRole !== 'owner') {
+            return res.status(403).json({ error: 'Access denied - Owner only' });
+        }
+
+        const limit = parseInt(req.query.limit) || 100;
+        const adminRole = req.query.adminRole || null;
+        const severity = req.query.severity || null;
+
+        const activities = adminActivityLogger.getActivities(limit, adminRole, severity);
+        const stats = adminActivityLogger.getActivityStats();
+
+        res.json({ activities, stats });
+    });
+
+    app.get('/api/admin/activities/export', requireAuth, logAdminActivity('activity_log_export'), (req, res) => {
+        if (req.userRole !== 'owner') {
+            return res.status(403).json({ error: 'Access denied - Owner only' });
+        }
+
+        const format = req.query.format || 'json';
+        const data = adminActivityLogger.exportActivities(format);
+        
+        const filename = `admin_activities_${new Date().toISOString().split('T')[0]}.${format}`;
+        
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.setHeader('Content-Type', format === 'csv' ? 'text/csv' : 'application/json');
+        res.send(data);
+    });
+
+    app.delete('/api/admin/activities', requireAuth, logAdminActivity('activity_log_clear'), (req, res) => {
+        if (req.userRole !== 'owner') {
+            return res.status(403).json({ error: 'Access denied - Owner only' });
+        }
+
+        const olderThanDays = req.body.olderThanDays || null;
+        adminActivityLogger.clearActivities(olderThanDays);
+        
+        res.json({ success: true, message: 'Activity log cleared' });
+    });
+
     // API endpoint for dashboard statistics
-    app.get('/api/admin/dashboard', requireAuth, (req, res) => {
+    app.get('/api/admin/dashboard', requireAuth, logAdminActivity('dashboard_access'), (req, res) => {
         try {
             const users = database.users || new Map();
             const companies = database.companies || new Map();
